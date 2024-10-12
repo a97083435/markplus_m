@@ -26,7 +26,20 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 //打开管理页
 chrome.action.onClicked.addListener((tab) => {
-    chrome.tabs.create({url: 'index.html'});
+    let settingTabIdKey = "settingTabIdKey";
+    let settingTabId = "";
+    chrome.storage.local.get(settingTabIdKey, (result) => {
+        settingTabId = result[settingTabIdKey];
+        chrome.tabs.get(settingTabId, function(tab) {
+            if (chrome.runtime.lastError) {
+                chrome.tabs.create({url: 'index.html'}, function(tab) {
+                    chrome.storage.local.set({[settingTabIdKey]: tab.id});
+                });
+            } else {
+                chrome.tabs.update(settingTabId, { active: true });
+            }
+        });
+    });
 });
 
 //打开tab时缓存tabid与url
