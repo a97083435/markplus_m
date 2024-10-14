@@ -70,15 +70,23 @@ const DBManager = {
 
                     if(!bookmark.syncChrome){
                         let modifyBookmark = {};
-                        if(bookmark.type === "folder"){
-                            modifyBookmark = {"title":bookmark.title};
+                        if(bookmark.move){
+                            modifyBookmark = {"parentId":bookmark.parentId+"","index":bookmark.index};
+                            chrome.bookmarks.move(bookmark.id,modifyBookmark);
+                            bookmark.move = false;
                         }else{
-                            modifyBookmark = {"title":bookmark.title,"url":bookmark.url};
+                            if(bookmark.type === "folder"){
+                                modifyBookmark = {"title":bookmark.title};
+                            }else{
+                                modifyBookmark = {"title":bookmark.title,"url":bookmark.url};
+                            }
+                            chrome.bookmarks.update(bookmark.id,modifyBookmark);
                         }
-                        chrome.bookmarks.update(bookmark.id,modifyBookmark);
                         bookmark.syncChrome = true;
                     }
-
+                    if(bookmark.tags){
+                        bookmark = {...bookmark,tags:[...bookmark.tags],children:null};
+                    }
                     const request = objectStore.put(bookmark);
                     request.onsuccess = () => {
                         count++;
