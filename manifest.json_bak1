@@ -8,9 +8,13 @@
     "bookmarks",
     "storage",
     "webRequest",
+    "nativeMessaging",
     "activeTab",
     "scripting",
     "webNavigation"
+  ],
+  "host_permissions": [
+    "<all_urls>"
   ],
   "background": {
     "service_worker": "src/background/service-worker.js",
@@ -29,7 +33,6 @@
     }
   ],
   "action": {
-    "default_popup": "index.html",
     "default_icon": {
       "16": "src/assets/icons/icon16.png",
       "48": "src/assets/icons/icon48.png",

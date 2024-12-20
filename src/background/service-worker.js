@@ -30,15 +30,22 @@ chrome.action.onClicked.addListener((tab) => {
     let settingTabId = "";
     chrome.storage.local.get(settingTabIdKey, (result) => {
         settingTabId = result[settingTabIdKey];
-        chrome.tabs.get(settingTabId, function(tab) {
-            if (chrome.runtime.lastError) {
-                chrome.tabs.create({url: 'index.html'}, function(tab) {
-                    chrome.storage.local.set({[settingTabIdKey]: tab.id});
-                });
-            } else {
-                chrome.tabs.update(settingTabId, { active: true });
-            }
-        });
+        if(settingTabId){
+            chrome.tabs.get(settingTabId, function(tab) {
+                if (chrome.runtime.lastError) {
+                    chrome.tabs.create({url: 'index.html'}, function(tab) {
+                        chrome.storage.local.set({[settingTabIdKey]: tab.id});
+                    });
+                } else {
+                    chrome.tabs.update(settingTabId, { active: true });
+                }
+            });
+        }else{
+            chrome.tabs.create({url: 'index.html'}, function(tab) {
+                chrome.storage.local.set({[settingTabIdKey]: tab.id});
+            });
+        }
+
     });
 });
 
