@@ -3,39 +3,44 @@ import vue from '@vitejs/plugin-vue'
 import { crx } from '@crxjs/vite-plugin'
 import manifest from './manifest.json'
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  server: {
-    port: 3000,
-    strictPort: true,
-    hmr: {
-      port: 3000
-    }
-  },
-  build: {
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true
+const modifyManifest = (isProd) => {
+  const manifestCopy = structuredClone(manifest)
+  if (!isProd) {
+    manifestCopy.content_security_policy.extension_pages = 
+      "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; img-src 'self' chrome://favicon/; connect-src 'self' https://generativelanguage.googleapis.com/ ws://localhost:5173 http://localhost:5173"
+  }
+  return manifestCopy
+}
+
+export default defineConfig(({ mode }) => {
+  const isProd = mode === 'production'
+  
+  return {
+    plugins: [
+      vue(),
+      crx({ manifest: modifyManifest(isProd) }),
+    ],
+    server: {
+      port: 5173,
+      strictPort: true, // 如果端口被占用，不要尝试下一个可用端口
+      hmr: {
+        port: 5173,
+        protocol: 'ws',
+        host: 'localhost'
       }
     },
-    rollupOptions: {
-      input: {
-        'service-worker': './src/background/service-worker.js'
+    build: {
+      rollupOptions: {
+        input: {
+          index: 'index.html',
+        },
+        output: {
+          chunkFileNames: 'assets/[name]-[hash].js',
+          entryFileNames: 'assets/[name]-[hash].js',
+        },
       },
-      output: {
-        entryFileNames: (chunkInfo) => {
-          if (chunkInfo.name === 'service-worker') {
-            return 'service-worker.js'
-          }
-          return 'assets/[name]-[hash].js'
-        }
-      }
-    }
-  },
-  plugins: [
-    vue(),
-    crx({ manifest }),
-  ],
+      minify: false,
+      sourcemap: true,
+    },
+  }
 })
