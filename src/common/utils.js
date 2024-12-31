@@ -40,7 +40,7 @@ const Util = {
             syncChrome: true,
             type: node.children ? "folder" : "bookmark",
             childrenCount: node.children ? node.children.length : 0,
-            status: 0, //0:未处理，1:爬取数据中,2:爬取完成，-1：无法访问，
+            status: 0, //0:未处理，1:爬取完成，9:已总结, -1：无法访问，
             dateAddedTime: new Date(node.dateAdded).toLocaleString(),
             dateGroupModifiedTime: node.dateGroupModified ? new Date(node.dateGroupModified).toLocaleString() : null
         };

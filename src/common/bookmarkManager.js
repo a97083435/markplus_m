@@ -1,4 +1,4 @@
-const DBManager = {
+const BookmarkManager = {
     db: null,
     status: "0",
     dbName: "BookmarksDB",
@@ -62,6 +62,7 @@ const DBManager = {
 
                 let count = 0;
                 bookmarks.forEach(bookmark => {
+                    // console.log("开始保存书签");
                     try{
                         if(bookmark.currentUrl && !bookmark.currentDomain){
                             bookmark.currentDomain = new URL(bookmark.currentUrl).hostname;
@@ -168,9 +169,6 @@ const DBManager = {
     queryBookmarks: function (queryDto) {
         return this.initDatabase().then(() => {
             return new Promise((resolve, reject) => {
-                // if (!queryDto || !queryDto.value || !queryDto.prop || !queryDto.operator) {
-                //     reject("查询参数错误");
-                // }
                 const {prop, operator, value, limit = -1} = queryDto;
                 // 根据不同的匹配规则进行查询
                 const transaction = this.db.transaction([this.storeName], "readonly");
@@ -185,15 +183,17 @@ const DBManager = {
                         resolve(results);
                     } else if (cursor) {
                         if (operator === "like" && prop ==="all") {
-                            const props = ["title","url","treeName","metaTitle","metaKeywords","metaDescription","metaTags"];
+                            const props = ["title","url","tags","treeName","metaTitle","metaKeywords","metaDescription","metaTags"];
                             for (let pro of props) {
-                                if (cursor.value[pro] && cursor.value[pro].indexOf(value)>-1 ) {
+                                if (pro == "tags" && cursor.value[pro] && cursor.value[pro].join(',').indexOf(value)>-1) {
+                                    results.push(cursor.value);
+                                }else if (cursor.value[pro] && cursor.value[pro].indexOf(value)>-1 ) {
                                     results.push(cursor.value);
                                 }
                             }
                         }else if (operator === "like") {
                             if (cursor.value[prop] && cursor.value[prop].indexOf(value)>-1 ) {
-                                    results.push(cursor.value);
+                                results.push(cursor.value);
                             }
                         } else {
                             switch (operator) {
@@ -230,4 +230,4 @@ const DBManager = {
 };
 
 
-export default  DBManager;
+export default  BookmarkManager;

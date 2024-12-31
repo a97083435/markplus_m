@@ -1,6 +1,6 @@
 [使用 CRXJS、Vite、TypeScript、Vue3、Pinia、Less、Naive-ui 开发 Chrome 浏览器插件——自带热加载，无需手动配置 - 掘金](https://juejin.cn/post/7330227149177028617)
 
-
+dexie  indexedDB操作工具，替换chrome操作
 # 书签扩展
 
 - [x] 存储书签数据至indexedDB
