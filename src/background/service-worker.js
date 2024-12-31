@@ -324,12 +324,45 @@ async function clearCache() {
                     keysToRemove.push(key);
                 }
             }
-
             // 移除所有符合条件的键
             if (keysToRemove.length > 0) {
                 chrome.storage.local.remove(keysToRemove);
             }
             resolve();
+        });
+    });
+}
+
+/**
+ * 删除指定key缓存
+ * @param key
+ * @returns {Promise<unknown>}
+ */
+async function removeLocalKey(key,getCallback,removeCallback) {
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.get([key], function (items) {
+            try {
+                console.log("删除前", items[key]);
+                if (items[key]) {
+                    if (typeof callback === 'function'){
+                        callback(null, items[key]);
+                    }
+                    chrome.storage.local.remove(key, function() {
+                        if (typeof removeCallback === 'function'){
+                            removeCallback(null,items[key]);
+                        }
+                        if (chrome.runtime.lastError) {
+                            reject(chrome.runtime.lastError);
+                        } else {
+                            resolve();
+                        }
+                    });
+                } else {
+                    resolve(); // 如果键不存在，也完成 Promise
+                }
+            } catch (error) {
+                reject(error);
+            }
         });
     });
 }
