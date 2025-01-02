@@ -109,7 +109,7 @@ const Util = {
             chrome.storage.local.get([key], function (items) {
                 try {
                     console.trace();
-                    console.log("删除前", key,items[key]);
+                    // console.log("删除前", key,items[key]);
                     if (items[key]) {
                         if (typeof getCallback === 'function'){
                             getCallback(items);

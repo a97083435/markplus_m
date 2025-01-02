@@ -20,7 +20,7 @@ const BookmarkManager = {
                 console.log("数据库升级中");
                 this.db = event.target.result;
                 if (!this.db.objectStoreNames.contains(this.storeName)) {
-                    console.log(`创建对象存储 ${this.storeName}`);
+                    // console.log(`创建对象存储 ${this.storeName}`);
                     const objectStore = this.db.createObjectStore(this.storeName, {keyPath: "id"});
                 }
             };
@@ -55,7 +55,7 @@ const BookmarkManager = {
     saveBookmarks: async function (bookmarks) {
         return this.initDatabase().then(() => {
             return new Promise((resolve, reject) => {
-                console.log("开始存储书签，总数：", bookmarks.length);
+                // console.log("开始存储书签，总数：", bookmarks.length);
                 const transaction = this.db.transaction([this.storeName], "readwrite");
                 const objectStore = transaction.objectStore(this.storeName);
 
@@ -100,7 +100,7 @@ const BookmarkManager = {
                 });
 
                 transaction.oncomplete = () => {
-                    console.log(`所有书签已成功存储，总数：${count}`);
+                    // console.log(`所有书签已成功存储，总数：${count}`);
                     resolve();
                 };
 
@@ -134,7 +134,7 @@ const BookmarkManager = {
                 const objectStore = transaction.objectStore(this.storeName);
 
                 transaction.oncomplete = () => {
-                    console.log(`删除完成!`);
+                    // console.log(`删除完成!`);
                     resolve();
                 };
 
@@ -212,7 +212,7 @@ const BookmarkManager = {
                         }
                         cursor.continue();
                     } else {
-                        console.log(`搜索完成，找到 ${results.length} 个结果`);
+                        // console.log(`搜索完成，找到 ${results.length} 个结果`);
                         let datas = results.toSorted((a, b) => a.index - b.index);
                         resolve([...new Set(datas)]);
                     }

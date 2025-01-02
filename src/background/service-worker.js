@@ -56,7 +56,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
     }
     const url = details.url;
     const tabKey = Util.getTabKey(details.tabId);
-    console.log("打开地址:", url)
+    // console.log("打开地址:", url)
     chrome.storage.local.set({[tabKey]: url});
 });
 
@@ -69,7 +69,7 @@ chrome.webNavigation.onErrorOccurred.addListener((details) => {
     }
     let url = details.url;
     const tabKey = Util.getTabKey(details.tabId);
-    console.log("打开标签异常!",tabKey)
+    // console.log("打开标签异常!",tabKey)
     utils.removeLocalKey(tabKey, (items) => {
         BookmarkManager.getByUrl(url).then(datas => {
             if (Array.isArray(datas) && datas.length > 0) {
@@ -100,7 +100,6 @@ chrome.webNavigation.onErrorOccurred.addListener((details) => {
  *
  */
 chrome.webNavigation.onCompleted.addListener((details) => {
-    console.log("aaa",details)
     if (details.parentFrameId != -1) {
         return;
     }
@@ -109,17 +108,15 @@ chrome.webNavigation.onCompleted.addListener((details) => {
 
     const tabKey = Util.getTabKey(details.tabId);
     utils.removeLocalKey(tabKey, (items) => {
-        console.log("加载完成后删除tabKey回调",tabKey)
         let searchUrl = url;
         if (items[tabKey] && items[tabKey] != url) {
-            console.log("原始url：", items[tabKey], "，当前url：", url)
             searchUrl = items[tabKey];
         }
         BookmarkManager.getByUrl(searchUrl).then(datas => {
             if (Array.isArray(datas) && datas.length > 0) {
                 const bookmark = datas[0];
                 if (bookmark && bookmark.id) { // 如果是书签地址
-                    console.log("加载完成找到书签", bookmark)
+                    // console.log("加载完成找到书签", bookmark)
                     bookmark.currentUrl = url;
                     try {
                         bookmark.currentDomain = new URL(url).hostname;
@@ -205,7 +202,7 @@ async function updateBookMark(bookmark, tabId) {
                     }
                 });
                 const result = {metaKeywords, metaTitle, metaDescription, metaTags};
-                console.log("result:", result)
+                // console.log("result:", result)
                 return result;
             }
         }, async (results) => {
@@ -213,7 +210,7 @@ async function updateBookMark(bookmark, tabId) {
                 console.error("执行脚本时出错:", chrome.runtime.lastError);
             } else {
                 let data = results[0].result;
-                console.log("获取的元数据:", results);
+                // console.log("获取的元数据:", results);
                 bookmark.metaKeywords = data.metaKeywords;
                 bookmark.metaTitle = data.metaTitle;
                 bookmark.metaDescription = data.metaDescription;
