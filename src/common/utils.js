@@ -73,6 +73,89 @@ const Util = {
     getTabKey: function (tabId) {
         return "tab_" + tabId;
     },
+    getLocalStorageItem: async function (key) {
+        return new Promise((resolve) => {
+            chrome.storage.local.get([key], function (result) {
+                resolve(result[key]);
+            });
+        });
+    },
+    clearCache : async function () {
+        return new Promise((resolve) => {
+            chrome.storage.local.get(null, function (items) {
+                let keysToRemove = [];
+                for (let [key, value] of Object.entries(items)) {
+                    // 假设前缀是 "prefix_"
+                    if (!key.startsWith("sys_")) {
+                        keysToRemove.push(key);
+                    }
+                }
+                // 移除所有符合条件的键
+                if (keysToRemove.length > 0) {
+                    chrome.storage.local.remove(keysToRemove);
+                }
+                resolve();
+            });
+        });
+    },
+    /**
+     * 删除指定key缓存
+     * @param key
+     * @returns {Promise<unknown>}
+     */
+    removeLocalKey: async function (key,getCallback,removeCallback) {
+        console.trace();
+        return new Promise((resolve, reject) => {
+            chrome.storage.local.get([key], function (items) {
+                try {
+                    console.trace();
+                    console.log("删除前", key,items[key]);
+                    if (items[key]) {
+                        if (typeof getCallback === 'function'){
+                            getCallback(items);
+                        }
+                        chrome.storage.local.remove(key, function() {
+                            if (typeof removeCallback === 'function'){
+                                removeCallback(items);
+                            }
+                            if (chrome.runtime.lastError) {
+                                reject(chrome.runtime.lastError);
+                            } else {
+                                resolve();
+                            }
+                        });
+                    } else {
+                        resolve(); // 如果键不存在，也完成 Promise
+                    }
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        });
+    },
+
+    /**
+     * 等待之前任务完成
+     * @returns {Promise<unknown>}
+     */
+    awaitLoad: async function () {
+        return new Promise((resolve) => {
+            chrome.storage.local.get(null, (items) => {
+                let removeCount = 0;
+                for (let key in items) {
+                    if (key.startsWith('remove_')) {
+                        removeCount++;
+                    }
+                }
+                if (removeCount > 3) {
+                    setTimeout(() => this.awaitLoad().then(resolve), 1000);
+                } else {
+                    resolve(removeCount);
+                }
+            });
+        });
+    }
+
 
 }
 

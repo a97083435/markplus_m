@@ -8,6 +8,7 @@ const Constant={
     STATISTICS_TOTAL:"statisticsTotal",
     CRAWL_META:"crawlMeta",
     STOP_CRAWL_META:"stopCrawlMeta",
+    SYS_CRAWL_STATUS:"sys_crawlStatus"
 }
 
 

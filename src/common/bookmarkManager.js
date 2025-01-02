@@ -14,7 +14,6 @@ const BookmarkManager = {
             };
             request.onsuccess = event => {
                 this.db = event.target.result;
-                console.log("数据库成功打开");
                 resolve(this.db);
             };
             request.onupgradeneeded = event => {
@@ -89,12 +88,12 @@ const BookmarkManager = {
                         bookmark = {...bookmark,tags:[...bookmark.tags],children:null};
                     }
                     const request = objectStore.put(bookmark);
-                    request.onsuccess = () => {
-                        count++;
-                        if (count % 100 === 0) {
-                            console.log(`已存储 ${count} 个书签`);
-                        }
-                    };
+                    // request.onsuccess = () => {
+                    //     count++;
+                    //     if (count % 100 === 0) {
+                    //         console.log(`已存储 ${count} 个书签`);
+                    //     }
+                    // };
                     request.onerror = (event) => {
                         console.error("存储书签时出错", event.target.error);
                     };
