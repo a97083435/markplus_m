@@ -180,7 +180,7 @@ chrome.runtime.onConnect.addListener(function (port) {
 
 //在打开的tab页中执行脚本获取元数据
 async function updateBookMark(bookmark, tabId) {
-    if (bookmark.status == 0 || bookmark.status == -1) {
+    if (bookmark.metaTitle == '') {
         chrome.scripting.executeScript({
             target: {tabId: tabId},
             function: () => {
@@ -220,7 +220,7 @@ async function updateBookMark(bookmark, tabId) {
             }
             summarizeTagsByLLm(bookmark);
         });
-    } else if (bookmark.status == 2) {
+    } else if (!bookmark.tags || bookmark.tags.length == 0) {
         summarizeTagsByLLm(bookmark);
     }
 }
