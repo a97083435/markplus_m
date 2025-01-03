@@ -85,7 +85,6 @@ const Util = {
             chrome.storage.local.get(null, function (items) {
                 let keysToRemove = [];
                 for (let [key, value] of Object.entries(items)) {
-                    // 假设前缀是 "prefix_"
                     if (!key.startsWith("sys_")) {
                         keysToRemove.push(key);
                     }
@@ -104,11 +103,9 @@ const Util = {
      * @returns {Promise<unknown>}
      */
     removeLocalKey: async function (key,getCallback,removeCallback) {
-        console.trace();
         return new Promise((resolve, reject) => {
             chrome.storage.local.get([key], function (items) {
                 try {
-                    console.trace();
                     // console.log("删除前", key,items[key]);
                     if (items[key]) {
                         if (typeof getCallback === 'function'){

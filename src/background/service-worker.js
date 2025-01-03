@@ -1,7 +1,7 @@
 import BookmarkManager from '../common/bookmarkManager.js';
 import Constant from '../common/constant.js';
 import Util from "../common/utils.js";
-import {summarizeTags} from '../common/llmutil.js';
+import LLM from '../common/llmutil.js';
 import utils from "../common/utils.js";
 
 /**
@@ -143,19 +143,19 @@ chrome.webNavigation.onCompleted.addListener((details) => {
  */
 chrome.runtime.onConnect.addListener(function (port) {
     port.onMessage.addListener(function (params) {
-        if (params.action === Constant.QUERY_FOLDER) {
+        if (params.action === Constant.PAGE_EVENT.QUERY_FOLDER) {
             BookmarkManager.queryBookmarks(params).then(datas => {
-                port.postMessage({action: Constant.QUERY_FOLDER, datas: Util.getRootTree(datas)});
+                port.postMessage({action: Constant.PAGE_EVENT.QUERY_FOLDER, datas: Util.getRootTree(datas)});
             })
-        } else if (params.action === Constant.STOP_CRAWL_META) {
-            chrome.storage.local.set({[Constant.SYS_CRAWL_STATUS]: "0"});
-        } else if (params.action === Constant.CRAWL_META) {
-            chrome.storage.local.set({[Constant.SYS_CRAWL_STATUS]: "1"});
+        } else if (params.action === Constant.PAGE_EVENT.STOP_CRAWL_META) {
+            chrome.storage.local.set({[Constant.PAGE_EVENT.SYS_CRAWL_STATUS]: "0"});
+        } else if (params.action === Constant.PAGE_EVENT.CRAWL_META) {
+            chrome.storage.local.set({[Constant.PAGE_EVENT.SYS_CRAWL_STATUS]: "1"});
             BookmarkManager.queryBookmarks(params).then(async datas => {
                 await utils.clearCache();
                 var i = 0;
                 for (const data of datas) {
-                    const crawlStatus = await utils.getLocalStorageItem(Constant.SYS_CRAWL_STATUS);
+                    const crawlStatus =  utils.getLocalStorageItem(Constant.PAGE_EVENT.SYS_CRAWL_STATUS);
                     if (crawlStatus == "0") {
                         return;
                     }
@@ -231,10 +231,16 @@ async function summarizeTagsByLLm(bookmark) {
         const metaKeywords = bookmark.metaKeywords;
         const metaDescription = bookmark.metaDescription;
         const metaTags = bookmark.metaTags;
-        const tags = await summarizeTags(JSON.stringify({metaTitle, metaKeywords, metaDescription, metaTags}));
-        bookmark.status = 9;
+        const tags = await LLM.summarizeTags(JSON.stringify({metaTitle, metaKeywords, metaDescription, metaTags}));
         bookmark.tags = tags['tags'];
-        BookmarkManager.saveBookmarks([bookmark]);
+
+        if(bookmark.tags){
+            bookmark.status = 9;
+            BookmarkManager.saveBookmarks([bookmark]);
+        }else{
+            throw new Error("未取到总结标签。");
+        }
+
     } catch (e) {
         console.log("llm总结标签异常:", e)
     }
