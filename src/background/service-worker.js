@@ -155,7 +155,7 @@ chrome.runtime.onConnect.addListener(function (port) {
                 await utils.clearCache();
                 var i = 0;
                 for (const data of datas) {
-                    const crawlStatus =  utils.getLocalStorageItem(Constant.PAGE_EVENT.SYS_CRAWL_STATUS);
+                    const crawlStatus = await utils.getLocalStorageItem(Constant.PAGE_EVENT.SYS_CRAWL_STATUS);
                     if (crawlStatus == "0") {
                         return;
                     }
