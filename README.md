@@ -21,3 +21,16 @@ BUG
 - [ ] 如何判断打开页面发生跳转/正常响应但页面为404
 - [ ] {"tags": ["透明创业", "实验", "被动收入", "机灵", "普通人"]} 提示词优化
 - [ ] 首页打开后tab不唯一，
+- [ ] 高并发访问导致ai接口调用失败
+  llm总结标签异常: GoogleGenerativeAIFetchError: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/learnlm-1.5-pro-experimental:generateContent: [429 ] Resource has been exhausted (e.g. check quota).
+  at handleResponseNotOk (@google_generative-ai.js?v=39d289e3:216:9)
+  at async makeRequest (@google_generative-ai.js?v=39d289e3:192:5)
+  at async generateContent (@google_generative-ai.js?v=39d289e3:524:20)
+  at async ChatSession.sendMessage (@google_generative-ai.js?v=39d289e3:760:5)
+  at async llmutil.js:34:28
+  at async summarizeTagsByLLm (service-worker.js:241:22)
+
+llm总结标签异常: GoogleGenerativeAIResponseError: [GoogleGenerativeAI Error]: Candidate was blocked due to SAFETY
+at response.text (@google_generative-ai.js?v=39d289e3:241:15)
+at llmutil.js:35:41
+at async summarizeTagsByLLm (service-worker.js:241:22)
