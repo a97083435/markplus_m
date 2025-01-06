@@ -143,7 +143,7 @@ const Util = {
                         removeCount++;
                     }
                 }
-                if (removeCount > userConfig.crawlQueueLength) {
+                if (removeCount >= userConfig.crawlQueueLength) {
                     setTimeout(() => this.awaitLoad(userConfig).then(resolve), 1000);
                 } else {
                     resolve(removeCount);
