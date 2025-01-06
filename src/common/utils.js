@@ -104,12 +104,11 @@ const Util = {
      */
     removeLocalKey: async function (key,getCallback,removeCallback) {
         return new Promise((resolve, reject) => {
-            chrome.storage.local.get([key], function (items) {
+            chrome.storage.local.get([key], async function (items) {
                 try {
-                    // console.log("删除前", key,items[key]);
                     if (items[key]) {
                         if (typeof getCallback === 'function'){
-                            getCallback(items);
+                            await getCallback(items);
                         }
                         chrome.storage.local.remove(key, function() {
                             if (typeof removeCallback === 'function'){
@@ -135,7 +134,7 @@ const Util = {
      * 等待之前任务完成
      * @returns {Promise<unknown>}
      */
-    awaitLoad: async function () {
+    awaitLoad: async function (userConfig) {
         return new Promise((resolve) => {
             chrome.storage.local.get(null, (items) => {
                 let removeCount = 0;
@@ -144,13 +143,23 @@ const Util = {
                         removeCount++;
                     }
                 }
-                if (removeCount > 3) {
-                    setTimeout(() => this.awaitLoad().then(resolve), 1000);
+                if (removeCount > userConfig.crawlQueueLength) {
+                    setTimeout(() => this.awaitLoad(userConfig).then(resolve), 1000);
                 } else {
                     resolve(removeCount);
                 }
             });
         });
+    },
+    hasEmptyProperty(obj){
+        for (let key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                if (obj[key] === null || obj[key] === undefined || obj[key] === "" || obj[key].length === 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 

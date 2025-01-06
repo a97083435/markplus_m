@@ -3,6 +3,7 @@ import Constant from '../common/constant.js';
 import Util from "../common/utils.js";
 import LLM from '../common/llmutil.js';
 import utils from "../common/utils.js";
+import userSetting from "../common/userSetting.js";
 
 /**
  * 初始化indexedDB
@@ -25,7 +26,6 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.action.onClicked.addListener((tab) => {
     let settingTabIdKey = "sys_settingTabIdKey";
     let settingTabId = "";
-    utils.removeLocalKey("");
     chrome.storage.local.get(settingTabIdKey, (result) => {
         settingTabId = result[settingTabIdKey];
         if (settingTabId) {
@@ -69,8 +69,9 @@ chrome.webNavigation.onErrorOccurred.addListener((details) => {
     }
     let url = details.url;
     const tabKey = Util.getTabKey(details.tabId);
-    // console.log("打开标签异常!",tabKey)
+    const removeTabKey = Util.getRemoveTabKey(details.tabId);
     utils.removeLocalKey(tabKey, (items) => {
+        console.log("打开标签异常-删除前!",tabKey)
         BookmarkManager.getByUrl(url).then(datas => {
             if (Array.isArray(datas) && datas.length > 0) {
                 for (let bookmark of datas) {
@@ -88,11 +89,14 @@ chrome.webNavigation.onErrorOccurred.addListener((details) => {
             }
 
         });
+    },(items) => {
+        console.log("打开标签异常-关闭tab!",tabKey)
+        utils.removeLocalKey(removeTabKey, (items) => {
+            chrome.tabs.remove(details.tabId);
+        });
     });
-    const removeTabKey = Util.getRemoveTabKey(details.tabId);
-    utils.removeLocalKey(removeTabKey, null,(items) => {
-        chrome.tabs.remove(details.tabId);
-    });
+
+
 });
 
 /**
@@ -107,12 +111,14 @@ chrome.webNavigation.onCompleted.addListener((details) => {
     const tabId = details.tabId;
 
     const tabKey = Util.getTabKey(details.tabId);
-    utils.removeLocalKey(tabKey, (items) => {
+    const removeTabKey = Util.getRemoveTabKey(details.tabId);
+    utils.removeLocalKey(tabKey, async (items) => {
+        console.log("加载完成-删除前!", tabKey)
         let searchUrl = url;
         if (items[tabKey] && items[tabKey] != url) {
             searchUrl = items[tabKey];
         }
-        BookmarkManager.getByUrl(searchUrl).then(datas => {
+        await BookmarkManager.getByUrl(searchUrl).then(async datas => {
             if (Array.isArray(datas) && datas.length > 0) {
                 const bookmark = datas[0];
                 if (bookmark && bookmark.id) { // 如果是书签地址
@@ -122,20 +128,18 @@ chrome.webNavigation.onCompleted.addListener((details) => {
                         bookmark.currentDomain = new URL(url).hostname;
                     } catch (e) {
                     }
-                    updateBookMark(bookmark, tabId);
+                    await updateBookMark(bookmark, tabId);
                 }
             } else {
-                console.log("未找到书签:", searchUrl,tabKey)
+                console.log("未找到书签:", searchUrl, tabKey)
             }
         });
+    },(items) => {
+        console.log("加载完成-删除tab!",tabKey)
+        utils.removeLocalKey(removeTabKey, (items) => {
+            chrome.tabs.remove(details.tabId);
+        });
     });
-
-
-    const removeTabKey = Util.getRemoveTabKey(details.tabId);
-    utils.removeLocalKey(removeTabKey, null,(items) => {
-        chrome.tabs.remove(details.tabId);
-    });
-
 });
 
 /**
@@ -148,22 +152,25 @@ chrome.runtime.onConnect.addListener(function (port) {
                 port.postMessage({action: Constant.PAGE_EVENT.QUERY_FOLDER, datas: Util.getRootTree(datas)});
             })
         } else if (params.action === Constant.PAGE_EVENT.STOP_CRAWL_META) {
-            chrome.storage.local.set({[Constant.PAGE_EVENT.SYS_CRAWL_STATUS]: "0"});
+            chrome.storage.local.set({[Constant.ENV.SYS_CRAWL_STATUS]: "0"});
         } else if (params.action === Constant.PAGE_EVENT.CRAWL_META) {
-            chrome.storage.local.set({[Constant.PAGE_EVENT.SYS_CRAWL_STATUS]: "1"});
+            chrome.storage.local.set({[Constant.ENV.SYS_CRAWL_STATUS]: "1"});
             BookmarkManager.queryBookmarks(params).then(async datas => {
+                const userConfig = await userSetting.getConfig();
                 await utils.clearCache();
                 var i = 0;
                 for (const data of datas) {
-                    const crawlStatus = await utils.getLocalStorageItem(Constant.PAGE_EVENT.SYS_CRAWL_STATUS);
+                    const crawlStatus = await utils.getLocalStorageItem(Constant.ENV.SYS_CRAWL_STATUS);
                     if (crawlStatus == "0") {
                         return;
                     }
-                    i++;
-                    if (i>10){
-                        debugger;
+                    if(data.url.startsWith("chrome")){
+                        continue;
                     }
-                    await utils.awaitLoad();
+                    if(!userConfig.crawlStatus.includes(data.status)){
+                        continue;
+                    }
+                    await utils.awaitLoad(userConfig);
                     await chrome.tabs.create({url: data.url, active: false}, function (tab) {
                         chrome.storage.local.set({[Util.getRemoveTabKey(tab.id)]: tab.id});
                     });
@@ -227,11 +234,11 @@ async function updateBookMark(bookmark, tabId) {
 
 async function summarizeTagsByLLm(bookmark) {
     try {
-        const metaTitle = bookmark.metaTitle;
-        const metaKeywords = bookmark.metaKeywords;
-        const metaDescription = bookmark.metaDescription;
-        const metaTags = bookmark.metaTags;
-        const tags = await LLM.summarizeTags(JSON.stringify({metaTitle, metaKeywords, metaDescription, metaTags}));
+        // const metaTitle = bookmark.metaTitle;
+        // const metaKeywords = bookmark.metaKeywords;
+        // const metaDescription = bookmark.metaDescription;
+        // const metaTags = bookmark.metaTags;
+        const tags = await LLM.summarizeTags(JSON.stringify(bookmark));
         bookmark.tags = tags['tags'];
 
         if(bookmark.tags){

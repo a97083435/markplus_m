@@ -81,6 +81,11 @@ const UserSetting={
             }else{
                 data = JSON.parse(data);
             }
+
+            if(!data.crawlStatus || !data.crawlStatus){
+
+            }
+
             return data;
         });
     },
