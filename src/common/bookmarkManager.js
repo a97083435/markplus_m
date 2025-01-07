@@ -215,7 +215,7 @@ const BookmarkManager = {
                         }
                         cursor.continue();
                     } else {
-                        console.log(`搜索完成，找到 ${results.length} 个结果-查询条件`,queryDto);
+                        // console.log(`搜索完成，找到 ${results.length} 个结果-查询条件`,queryDto);
                         let datas = results.toSorted((a, b) => a.index - b.index);
                         resolve([...new Set(datas)]);
                     }

@@ -225,32 +225,10 @@ async function updateBookMark(bookmark, tabId) {
                 bookmark.status = 2;
                 BookmarkManager.saveBookmarks([bookmark]);
             }
-            summarizeTagsByLLm(bookmark);
+            LLM.init().then(self => self.addSummarizeQueue(bookmark));
         });
     } else if (!bookmark.tags || bookmark.tags.length == 0) {
-        summarizeTagsByLLm(bookmark);
+        LLM.init().then(self => self.addSummarizeQueue(bookmark));
     }
 }
-
-async function summarizeTagsByLLm(bookmark) {
-    try {
-        // const metaTitle = bookmark.metaTitle;
-        // const metaKeywords = bookmark.metaKeywords;
-        // const metaDescription = bookmark.metaDescription;
-        // const metaTags = bookmark.metaTags;
-        const tags = await LLM.summarizeTags(JSON.stringify(bookmark));
-        bookmark.tags = tags['tags'];
-
-        if(bookmark.tags){
-            bookmark.status = 9;
-            BookmarkManager.saveBookmarks([bookmark]);
-        }else{
-            throw new Error("未取到总结标签。");
-        }
-
-    } catch (e) {
-        console.log("llm总结标签异常:", e)
-    }
-}
-
 
