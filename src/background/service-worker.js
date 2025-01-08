@@ -24,27 +24,38 @@ chrome.runtime.onInstalled.addListener(() => {
  * 首页
  */
 chrome.action.onClicked.addListener((tab) => {
-    let settingTabIdKey = "sys_settingTabIdKey";
-    let settingTabId = "";
-    chrome.storage.local.get(settingTabIdKey, (result) => {
-        settingTabId = result[settingTabIdKey];
-        if (settingTabId) {
-            chrome.tabs.get(settingTabId, function (tab) {
-                if (chrome.runtime.lastError) {
-                    chrome.tabs.create({url: 'index.html'}, function (tab) {
-                        chrome.storage.local.set({[settingTabIdKey]: tab.id});
-                    });
-                } else {
-                    chrome.tabs.update(settingTabId, {active: true});
-                }
-            });
-        } else {
-            chrome.tabs.create({url: 'index.html'}, function (tab) {
-                chrome.storage.local.set({[settingTabIdKey]: tab.id});
-            });
-        }
+    const indexUrl = `chrome-extension://${chrome.runtime.id}/index.html`; // 动态获取扩展 ID
 
+    chrome.tabs.query({ url: indexUrl }, (tabs) => {
+        if (tabs.length > 0) {
+            // 如果 index.html 标签页已经打开，则切换到它
+            chrome.tabs.update(tabs[0].id, { active: true });
+        } else {
+            // 如果未打开，则创建一个新的 index.html 标签页
+            chrome.tabs.create({ url: indexUrl });
+        }
     });
+    // let settingTabIdKey = "sys_settingTabIdKey";
+    // let settingTabId = "";
+    // chrome.storage.local.get(settingTabIdKey, (result) => {
+    //     settingTabId = result[settingTabIdKey];
+    //     if (settingTabId) {
+    //         chrome.tabs.get(settingTabId, function (tab) {
+    //             if (chrome.runtime.lastError) {
+    //                 chrome.tabs.create({url: 'index.html'}, function (tab) {
+    //                     chrome.storage.local.set({[settingTabIdKey]: tab.id});
+    //                 });
+    //             } else {
+    //                 chrome.tabs.update(settingTabId, {active: true});
+    //             }
+    //         });
+    //     } else {
+    //         chrome.tabs.create({url: 'index.html'}, function (tab) {
+    //             chrome.storage.local.set({[settingTabIdKey]: tab.id});
+    //         });
+    //     }
+    //
+    // });
 });
 
 /**
@@ -113,7 +124,7 @@ chrome.webNavigation.onCompleted.addListener((details) => {
     const tabKey = Util.getTabKey(details.tabId);
     const removeTabKey = Util.getRemoveTabKey(details.tabId);
     utils.removeLocalKey(tabKey, async (items) => {
-        console.log("加载完成-删除前!", tabKey)
+        // console.log("加载完成-删除前!", tabKey)
         let searchUrl = url;
         if (items[tabKey] && items[tabKey] != url) {
             searchUrl = items[tabKey];
@@ -124,18 +135,31 @@ chrome.webNavigation.onCompleted.addListener((details) => {
                 if (bookmark && bookmark.id) { // 如果是书签地址
                     // console.log("加载完成找到书签", bookmark)
                     bookmark.currentUrl = url;
+                    bookmark.currentDomain = null;
                     try {
                         bookmark.currentDomain = new URL(url).hostname;
                     } catch (e) {
                     }
-                    await updateBookMark(bookmark, tabId);
+                    let sameUrl = bookmark.url == bookmark.currentUrl;
+                    for (let i = 0; i < datas.length; i++) {
+                        datas[i].currentUrl = bookmark.currentUrl;
+                        datas[i].currentDomain = bookmark.currentDomain;
+                        if (!sameUrl) {
+                            datas[i].status = -2;
+                        }
+                    }
+                    if(!sameUrl){
+                        BookmarkManager.saveBookmarks(datas);
+                    }else{
+                        await updateBookMark(datas, tabId);
+                    }
                 }
             } else {
                 console.log("未找到书签:", searchUrl, tabKey)
             }
         });
     },(items) => {
-        console.log("加载完成-删除tab!",tabKey)
+        // console.log("加载完成-删除tab!",tabKey)
         utils.removeLocalKey(removeTabKey, (items) => {
             chrome.tabs.remove(details.tabId);
         });
@@ -186,7 +210,8 @@ chrome.runtime.onConnect.addListener(function (port) {
 
 
 //在打开的tab页中执行脚本获取元数据
-async function updateBookMark(bookmark, tabId) {
+async function updateBookMark(datas, tabId) {
+    let bookmark = datas[0];
     if (bookmark.metaTitle == '') {
         chrome.scripting.executeScript({
             target: {tabId: tabId},
@@ -218,12 +243,14 @@ async function updateBookMark(bookmark, tabId) {
             } else {
                 let data = results[0].result;
                 // console.log("获取的元数据:", results);
-                bookmark.metaKeywords = data.metaKeywords;
-                bookmark.metaTitle = data.metaTitle;
-                bookmark.metaDescription = data.metaDescription;
-                bookmark.metaTags = data.metaTags;
-                bookmark.status = 2;
-                BookmarkManager.saveBookmarks([bookmark]);
+                for (let i = 0; i < datas.length; i++) {
+                    datas[i].metaKeywords = data.metaKeywords;
+                    datas[i].metaTitle = data.metaTitle;
+                    datas[i].metaDescription = data.metaDescription;
+                    datas[i].metaTags = data.metaTags;
+                    datas[i].status = 2;
+                }
+                BookmarkManager.saveBookmarks(datas);
             }
             LLM.init().then(self => self.addSummarizeQueue(bookmark));
         });

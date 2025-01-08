@@ -206,16 +206,16 @@ const BookmarkManager = {
                                     cursor.value[prop] <= value && results.push(cursor.value);
                                     break;
                                 case 'in':
-                                    value.includes(cursor.value[prop]) && results.push(cursor.value);
+                                    value.includes(cursor.value[prop]) && cursor.value.type=='bookmark' && results.push(cursor.value);
                                     break;
                                 case 'staticUrlChange':
-                                    cursor.value.domain != cursor.value.currentDomain && results.push(cursor.value);
+                                    cursor.value.domain && cursor.value.currentDomain && cursor.value.domain != cursor.value.currentDomain && cursor.value.type=='bookmark' && results.push(cursor.value);
                                     break;
                             }
                         }
                         cursor.continue();
                     } else {
-                        // console.log(`搜索完成，找到 ${results.length} 个结果-查询条件`,queryDto);
+                        console.log(`搜索完成，找到 ${results.length} 个结果-查询条件`,queryDto);
                         let datas = results.toSorted((a, b) => a.index - b.index);
                         resolve([...new Set(datas)]);
                     }
