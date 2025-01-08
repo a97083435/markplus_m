@@ -140,7 +140,7 @@ chrome.webNavigation.onCompleted.addListener((details) => {
                         bookmark.currentDomain = new URL(url).hostname;
                     } catch (e) {
                     }
-                    let sameUrl = bookmark.url == bookmark.currentUrl;
+                    let sameUrl = bookmark.domain == bookmark.currentDomain;
                     for (let i = 0; i < datas.length; i++) {
                         datas[i].currentUrl = bookmark.currentUrl;
                         datas[i].currentDomain = bookmark.currentDomain;
