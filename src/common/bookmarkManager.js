@@ -52,6 +52,65 @@ const BookmarkManager = {
             });
         });
     },
+    getParentSync :async function (objectStore, parentId) {
+        try {
+            const parent = await new Promise((resolve, reject) => {
+                const request = objectStore.get(parentId);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+            return parent;
+        } catch (error) {
+            console.error("获取父节点失败", error);
+            return null; // 或者返回适当的错误处理
+        }
+    },
+    addChromeBookmark: async function(bookmark){
+        const _this = this;
+        return this.initDatabase().then(() => {
+            return new Promise(async (resolve, reject) => {
+                const transaction = this.db.transaction([this.storeName], "readwrite");
+                const objectStore = transaction.objectStore(this.storeName);
+                const bookmarkDb = {
+                    id: bookmark.id,
+                    parentId: bookmark.parentId,
+                    title: bookmark.title,
+                    url: bookmark.url,
+                    currentDomain:bookmark.url ? new URL(bookmark.url).hostname : null,
+                    currentUrl: bookmark.url,
+                    dateAdded: bookmark.dateAdded,
+                    index: bookmark.index,
+                    domain: bookmark.url ? new URL(bookmark.url).hostname : null,
+                    tags:[],
+                    syncChrome: true,
+                    type: bookmark.children ? "folder" : "bookmark",
+                    status: 0,
+                    dateAddedTime: new Date(bookmark.dateAdded).toLocaleString(),
+                    dateGroupModifiedTime: new Date(bookmark.dateAdded).toLocaleString()
+                };
+                let parent =await _this.getParentSync(objectStore,bookmark.parentId);
+                while (parent){
+                    if(parent.parentId == 0){
+                        break;
+                    }
+                    bookmarkDb.treeId =  parent.id +"/" + bookmarkDb.treeId;
+                    bookmarkDb.treeName = parent.title +"/" + bookmarkDb.treeName;
+                    parent = await _this.getParentSync(objectStore,parent.parentId);
+                }
+                objectStore.put(bookmarkDb)
+
+                transaction.oncomplete = () => {
+                    console.log("保存chrome书签完成")
+                    resolve(bookmarkDb);
+                };
+
+                transaction.onerror = event => {
+                    console.error("保存chrome书签错误", event.target.error);
+                    reject(event);
+                };
+            });
+        });
+    },
     saveBookmarks: async function (bookmarks) {
         return this.initDatabase().then(() => {
             return new Promise((resolve, reject) => {
@@ -134,7 +193,7 @@ const BookmarkManager = {
                 const objectStore = transaction.objectStore(this.storeName);
 
                 transaction.oncomplete = () => {
-                    // console.log(`删除完成!`);
+                    console.log(`删除完成!`);
                     resolve();
                 };
 

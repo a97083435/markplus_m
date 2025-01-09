@@ -2,7 +2,6 @@ import BookmarkManager from '../common/bookmarkManager.js';
 import Constant from '../common/constant.js';
 import Util from "../common/utils.js";
 import LLM from '../common/llmutil.js';
-import utils from "../common/utils.js";
 import userSetting from "../common/userSetting.js";
 
 /**
@@ -20,6 +19,25 @@ chrome.runtime.onInstalled.addListener(() => {
         }
     });
 });
+
+chrome.bookmarks.onCreated.addListener(async function(id, bookmark) {
+    const bookmarkDb = await BookmarkManager.addChromeBookmark(bookmark);
+    chrome.tabs.query({ url: bookmark.url }, (tabs) => {
+        updateBookMark([bookmarkDb],tabs[0].id);
+    });
+});
+
+chrome.bookmarks.onRemoved.addListener(function(id, removeInfo) {
+    BookmarkManager.deleteBookmarks([{id,type:removeInfo.node.url?'bookmark':'folder'}])
+});
+
+chrome.bookmarks.onChanged.addListener(function(id, changeInfo) {
+    console.log('Bookmark changed:', id, changeInfo);
+});
+
+chrome.bookmarks.onMoved.addListener(function(id, moveInfo) {
+    console.log('Bookmark moved:', id, moveInfo);
+});
 /**
  * 首页
  */
@@ -35,27 +53,6 @@ chrome.action.onClicked.addListener((tab) => {
             chrome.tabs.create({ url: indexUrl });
         }
     });
-    // let settingTabIdKey = "sys_settingTabIdKey";
-    // let settingTabId = "";
-    // chrome.storage.local.get(settingTabIdKey, (result) => {
-    //     settingTabId = result[settingTabIdKey];
-    //     if (settingTabId) {
-    //         chrome.tabs.get(settingTabId, function (tab) {
-    //             if (chrome.runtime.lastError) {
-    //                 chrome.tabs.create({url: 'index.html'}, function (tab) {
-    //                     chrome.storage.local.set({[settingTabIdKey]: tab.id});
-    //                 });
-    //             } else {
-    //                 chrome.tabs.update(settingTabId, {active: true});
-    //             }
-    //         });
-    //     } else {
-    //         chrome.tabs.create({url: 'index.html'}, function (tab) {
-    //             chrome.storage.local.set({[settingTabIdKey]: tab.id});
-    //         });
-    //     }
-    //
-    // });
 });
 
 /**
@@ -81,7 +78,7 @@ chrome.webNavigation.onErrorOccurred.addListener((details) => {
     let url = details.url;
     const tabKey = Util.getTabKey(details.tabId);
     const removeTabKey = Util.getRemoveTabKey(details.tabId);
-    utils.removeLocalKey(tabKey, (items) => {
+    Util.removeLocalKey(tabKey, (items) => {
         console.log("打开标签异常-删除前!",tabKey)
         BookmarkManager.getByUrl(url).then(datas => {
             if (Array.isArray(datas) && datas.length > 0) {
@@ -102,7 +99,7 @@ chrome.webNavigation.onErrorOccurred.addListener((details) => {
         });
     },(items) => {
         console.log("打开标签异常-关闭tab!",tabKey)
-        utils.removeLocalKey(removeTabKey, (items) => {
+        Util.removeLocalKey(removeTabKey, (items) => {
             chrome.tabs.remove(details.tabId);
         });
     });
@@ -123,7 +120,7 @@ chrome.webNavigation.onCompleted.addListener((details) => {
 
     const tabKey = Util.getTabKey(details.tabId);
     const removeTabKey = Util.getRemoveTabKey(details.tabId);
-    utils.removeLocalKey(tabKey, async (items) => {
+    Util.removeLocalKey(tabKey, async (items) => {
         // console.log("加载完成-删除前!", tabKey)
         let searchUrl = url;
         if (items[tabKey] && items[tabKey] != url) {
@@ -160,7 +157,7 @@ chrome.webNavigation.onCompleted.addListener((details) => {
         });
     },(items) => {
         // console.log("加载完成-删除tab!",tabKey)
-        utils.removeLocalKey(removeTabKey, (items) => {
+        Util.removeLocalKey(removeTabKey, (items) => {
             chrome.tabs.remove(details.tabId);
         });
     });
@@ -181,10 +178,10 @@ chrome.runtime.onConnect.addListener(function (port) {
             chrome.storage.local.set({[Constant.ENV.SYS_CRAWL_STATUS]: "1"});
             BookmarkManager.queryBookmarks(params).then(async datas => {
                 const userConfig = await userSetting.getConfig();
-                await utils.clearCache();
+                await Util.clearCache();
                 var i = 0;
                 for (const data of datas) {
-                    const crawlStatus = await utils.getLocalStorageItem(Constant.ENV.SYS_CRAWL_STATUS);
+                    const crawlStatus = await Util.getLocalStorageItem(Constant.ENV.SYS_CRAWL_STATUS);
                     if (crawlStatus == "0") {
                         return;
                     }
@@ -194,7 +191,7 @@ chrome.runtime.onConnect.addListener(function (port) {
                     if(!userConfig.crawlStatus.includes(data.status)){
                         continue;
                     }
-                    await utils.awaitLoad(userConfig);
+                    await Util.awaitLoad(userConfig);
                     await chrome.tabs.create({url: data.url, active: false}, function (tab) {
                         chrome.storage.local.set({[Util.getRemoveTabKey(tab.id)]: tab.id});
                     });
