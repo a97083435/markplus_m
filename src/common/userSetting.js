@@ -15,6 +15,7 @@ const UserSetting={
             if(!data){
                 data = {
                     provider:"google",
+                    llmEnabled: false,
                     providerkey:"",
                     providerModel:"learnlm-1.5-pro-experimental",
                     promt:"# 任务描述:\n" +
