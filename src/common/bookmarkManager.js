@@ -247,6 +247,8 @@ const BookmarkManager = {
                             if (cursor.value[prop] && cursor.value[prop].indexOf(value)>-1 ) {
                                 results.push(cursor.value);
                             }
+                        } else if (prop == 'status' && cursor.value.type == 'folder') {
+
                         } else {
                             switch (operator) {
                                 case 'eq':
@@ -260,9 +262,6 @@ const BookmarkManager = {
                                     break;
                                 case 'in':
                                     value.includes(cursor.value[prop]) && cursor.value.type=='bookmark' && results.push(cursor.value);
-                                    break;
-                                case 'staticUrlChange':
-                                    cursor.value.domain && cursor.value.currentDomain && cursor.value.domain != cursor.value.currentDomain && cursor.value.type=='bookmark' && results.push(cursor.value);
                                     break;
                             }
                         }
