@@ -89,14 +89,8 @@ const BookmarkManager = {
                     dateGroupModifiedTime: new Date(bookmark.dateAdded).toLocaleString()
                 };
                 let parent =await _this.getParentSync(objectStore,bookmark.parentId);
-                while (parent){
-                    if(parent.parentId == 0){
-                        break;
-                    }
-                    bookmarkDb.treeId =  parent.id +"/" + bookmarkDb.treeId;
-                    bookmarkDb.treeName = parent.title +"/" + bookmarkDb.treeName;
-                    parent = await _this.getParentSync(objectStore,parent.parentId);
-                }
+                bookmarkDb.treeId = parent.treeId+"/"+parent.id;
+                bookmarkDb.treeName = parent.treeName+"/"+parent.title;
                 objectStore.put(bookmarkDb)
 
                 transaction.oncomplete = () => {

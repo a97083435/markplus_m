@@ -20,10 +20,11 @@ chrome.runtime.onInstalled.addListener(() => {
     });
 });
 
-chrome.bookmarks.onCreated.addListener(async function(id, bookmark) {
-    const bookmarkDb = await BookmarkManager.addChromeBookmark(bookmark);
-    chrome.tabs.query({ url: bookmark.url }, (tabs) => {
-        updateBookMark([bookmarkDb],tabs[0].id);
+chrome.bookmarks.onCreated.addListener( function(id, bookmark) {
+    BookmarkManager.addChromeBookmark(bookmark).then(bookmarkDb=>{
+        chrome.tabs.query({ url: bookmark.url }, (tabs) => {
+            updateBookMark([bookmarkDb],tabs[0].id);
+        });
     });
 });
 
@@ -32,11 +33,20 @@ chrome.bookmarks.onRemoved.addListener(function(id, removeInfo) {
 });
 
 chrome.bookmarks.onChanged.addListener(function(id, changeInfo) {
-    console.log('Bookmark changed:', id, changeInfo);
+    BookmarkManager.getById(id).then(bookmark => {
+        bookmark.url = changeInfo.url;
+        bookmark.title = changeInfo.title;
+        bookmark.syncChrome = true;
+        BookmarkManager.saveBookmarks([bookmark]);
+    })
 });
 
 chrome.bookmarks.onMoved.addListener(function(id, moveInfo) {
-    console.log('Bookmark moved:', id, moveInfo);
+    BookmarkManager.getById(id).then(bookmark => {
+        bookmark.index = moveInfo.index;
+        bookmark.parentId = moveInfo.parentId;
+        BookmarkManager.addChromeBookmark(bookmark);
+    })
 });
 /**
  * 首页
