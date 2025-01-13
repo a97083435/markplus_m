@@ -268,7 +268,13 @@ const BookmarkManager = {
                         cursor.continue();
                     } else {
                         console.log(`搜索完成，找到 ${results.length} 个结果-查询条件`,queryDto);
-                        let datas = results.toSorted((a, b) => a.index - b.index);
+                        let datas = [];
+                        if(prop == 'status' && value == -3){
+                            console.log("重复书签排序")
+                            datas = results.toSorted((a, b) => a.url - b.url);
+                        }else{
+                            datas = results.toSorted((a, b) => a.index - b.index);
+                        }
                         resolve([...new Set(datas)]);
                     }
                 };

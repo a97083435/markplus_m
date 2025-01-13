@@ -20,6 +20,7 @@ chrome.runtime.onInstalled.addListener(() => {
     });
 });
 
+
 chrome.bookmarks.onCreated.addListener( function(id, bookmark) {
     BookmarkManager.addChromeBookmark(bookmark).then(bookmarkDb=>{
         chrome.tabs.query({ url: bookmark.url }, (tabs) => {
@@ -51,18 +52,19 @@ chrome.bookmarks.onMoved.addListener(function(id, moveInfo) {
 /**
  * 首页
  */
-chrome.action.onClicked.addListener((tab) => {
-    const indexUrl = `chrome-extension://${chrome.runtime.id}/index.html`; // 动态获取扩展 ID
-
-    chrome.tabs.query({ url: indexUrl }, (tabs) => {
-        if (tabs.length > 0) {
-            // 如果 index.html 标签页已经打开，则切换到它
-            chrome.tabs.update(tabs[0].id, { active: true });
-        } else {
-            // 如果未打开，则创建一个新的 index.html 标签页
-            chrome.tabs.create({ url: indexUrl });
-        }
-    });
+chrome.action.onClicked.addListener(async (tab) => {
+    // const indexUrl = `chrome-extension://${chrome.runtime.id}/index.html`; // 动态获取扩展 ID
+    //
+    // chrome.tabs.query({ url: indexUrl }, (tabs) => {
+    //     if (tabs.length > 0) {
+    //         // 如果 index.html 标签页已经打开，则切换到它
+    //         chrome.tabs.update(tabs[0].id, { active: true });
+    //     } else {
+    //         // 如果未打开，则创建一个新的 index.html 标签页
+    //         chrome.tabs.create({ url: indexUrl });
+    //     }
+    // });
+    chrome.runtime.openOptionsPage();
 });
 
 /**
@@ -248,6 +250,10 @@ async function updateBookMark(datas, tabId) {
             if (chrome.runtime.lastError) {
                 console.error("执行脚本时出错:", chrome.runtime.lastError);
             } else {
+                let status = 2;
+                if(datas.length > 1){
+                    status = -3;
+                }
                 let data = results[0].result;
                 // console.log("获取的元数据:", results);
                 for (let i = 0; i < datas.length; i++) {
@@ -255,7 +261,7 @@ async function updateBookMark(datas, tabId) {
                     datas[i].metaTitle = data.metaTitle;
                     datas[i].metaDescription = data.metaDescription;
                     datas[i].metaTags = data.metaTags;
-                    datas[i].status = 2;
+                    datas[i].status = status;
                 }
                 BookmarkManager.saveBookmarks(datas);
             }
