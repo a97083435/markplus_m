@@ -24,7 +24,9 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.bookmarks.onCreated.addListener( function(id, bookmark) {
     BookmarkManager.addChromeBookmark(bookmark).then(bookmarkDb=>{
         chrome.tabs.query({ url: bookmark.url }, (tabs) => {
-            updateBookMark([bookmarkDb],tabs[0].id);
+            if(tabs){
+                updateBookMark([bookmarkDb],tabs[0].id);
+            }
         });
     });
 });

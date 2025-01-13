@@ -271,7 +271,7 @@ const BookmarkManager = {
                         let datas = [];
                         if(prop == 'status' && value == -3){
                             console.log("重复书签排序")
-                            datas = results.toSorted((a, b) => a.url - b.url);
+                            datas = results.toSorted((a, b) => a.url.localeCompare(b.url));
                         }else{
                             datas = results.toSorted((a, b) => a.index - b.index);
                         }
