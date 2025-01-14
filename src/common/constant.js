@@ -2,7 +2,8 @@
 const Constant={
     ENV:{
         SYS_CRAWL_STATUS:"sys_crawlStatus",
-        SYS_SAVE_CONFIG:"sys_SaveConfig"
+        SYS_SAVE_CONFIG:"sys_SaveConfig",
+        SYS_PAGE_CONFIG:"sys_editModel"
     },
     PAGE_EVENT:{
         USER_CONFIG:"markplusConfig",

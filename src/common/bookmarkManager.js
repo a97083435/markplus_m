@@ -198,12 +198,14 @@ const BookmarkManager = {
                 bookmarks.forEach(bookmark => {
                     let request;
                     if (bookmark.type === "bookmark") {
+                        chrome.bookmarks.remove(bookmark.id);
                         request = objectStore.delete(bookmark.id);
                         request.onerror = () => {
                             console.log(request.error);
                             reject(request.error);
                         };
                     } else {
+                        chrome.bookmarks.removeTree(bookmark.id);
                         _this.queryBookmarks({
                             prop: 'parentId',
                             operator: 'eq',
@@ -213,8 +215,8 @@ const BookmarkManager = {
                         });
                         objectStore.delete(bookmark.id);
                     }
-
                 });
+
             });
         });
     },

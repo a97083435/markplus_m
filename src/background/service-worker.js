@@ -191,7 +191,7 @@ chrome.runtime.onConnect.addListener(function (port) {
         } else if (params.action === Constant.PAGE_EVENT.CRAWL_META) {
             chrome.storage.local.set({[Constant.ENV.SYS_CRAWL_STATUS]: "1"});
             BookmarkManager.queryBookmarks(params).then(async datas => {
-                const userConfig = await userSetting.getConfig();
+                const userConfig = await userSetting.getSysConfig();
                 await Util.clearCache();
                 var i = 0;
                 for (const data of datas) {

@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { crx } from '@crxjs/vite-plugin'
 import manifest from './manifest.json'
+import removeConsole from 'vite-plugin-remove-console'
 
 const modifyManifest = (isProd) => {
   const manifestCopy = structuredClone(manifest)
@@ -19,6 +20,9 @@ export default defineConfig(({ mode }) => {
     plugins: [
       vue(),
       crx({ manifest: modifyManifest(isProd) }),
+      removeConsole({ // 注意：根据插件的版本和选项，可能需要调整
+        target: 'console'
+      }),
     ],
     server: {
       port: 5173,
@@ -39,8 +43,10 @@ export default defineConfig(({ mode }) => {
           entryFileNames: 'assets/[name]-[hash].js',
         },
       },
-      minify: false,
-      sourcemap: true,
+      minify: 'esbuild',
+      esbuild: {
+        pure: ['console.*', 'debugger'],
+      },
     },
   }
 })

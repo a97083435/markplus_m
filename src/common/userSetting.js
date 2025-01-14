@@ -6,10 +6,11 @@ import Constant from './constant.js';
  * crawlStatus: 爬取状态,空为所有，多个状态使用","分割
  * provider: llm厂商
  * providerkey: llm 密钥
- * @type {{getConfig: (function(): Promise<{[p: string]: any}>), setConfig: userSetting.setConfig}}
+ * @type {{getConfig: (function(): Promise<{[p: string]: any}>), setConfig: userSetting.setSysConfig}}
  */
 const UserSetting={
-    getConfig: async function(){
+    getSysConfig: async function(){
+        let _this = this;
         return await chrome.storage.sync.get([Constant.ENV.SYS_SAVE_CONFIG]).then((result) => {
             let data = result[Constant.ENV.SYS_SAVE_CONFIG];
             if(!data){
@@ -65,20 +66,29 @@ const UserSetting={
                     crawlQueueLength:5,
                     crawlStatus:[-1,0]
                 };
-                this.setConfig(data);
+                _this.setSysConfig(data);
             }else{
                 data = JSON.parse(data);
             }
-
-            if(!data.crawlStatus || !data.crawlStatus){
-
-            }
-
             return data;
         });
     },
-    setConfig: async function(data){
+    setSysConfig: async function(data){
         await chrome.storage.sync.set({[Constant.ENV.SYS_SAVE_CONFIG]:JSON.stringify(data)});
+    },
+    getPageConfig: async function(){
+        return await chrome.storage.sync.get([Constant.ENV.SYS_PAGE_CONFIG]).then((result) => {
+            let data = result[Constant.ENV.SYS_PAGE_CONFIG];
+            console.log("---------",data);
+            if(data==null){
+                data = false;
+                this.setPageConfig(false);
+            }
+            return data;
+        });
+    },
+    setPageConfig: async function(data){
+        await chrome.storage.local.set({[Constant.ENV.SYS_PAGE_CONFIG]:data});
     }
 }
 
