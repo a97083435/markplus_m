@@ -248,7 +248,10 @@ const BookmarkManager = {
                                 results.push(cursor.value);
                             }
                         } else if (prop == 'status' && cursor.value.type == 'folder') {
-
+                        } else if (prop == 'url') {
+                            let dburl = cursor.value[prop]?cursor.value[prop].replace(/(http|https):\/\//g, ''):"";
+                            let queryurl = value.replace(/(http|https):\/\//g, '');
+                            dburl == queryurl && results.push(cursor.value);
                         } else {
                             switch (operator) {
                                 case 'eq':
