@@ -1,3 +1,5 @@
+import Constant from "./constant.js";
+
 const Util = {
     flattenBookmarkTree: function (bookmarkNodes, treeId = "", treeName = "") {
         let bookmarks = [];
@@ -79,6 +81,9 @@ const Util = {
                 resolve(result[key]);
             });
         });
+    },
+    setLocalStorageItem: async function (key,value) {
+        await chrome.storage.local.set({[key]:value});
     },
     clearCache : async function () {
         return new Promise((resolve) => {
