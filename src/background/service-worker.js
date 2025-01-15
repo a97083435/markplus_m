@@ -22,6 +22,7 @@ chrome.runtime.onInstalled.addListener(() => {
 
 
 chrome.bookmarks.onCreated.addListener( function(id, bookmark) {
+    console.log("onCreated",id,bookmark);
     BookmarkManager.addChromeBookmark(bookmark).then(bookmarkDb=>{
         chrome.tabs.query({ url: bookmark.url }, (tabs) => {
             if(tabs){
@@ -36,6 +37,7 @@ chrome.bookmarks.onRemoved.addListener(function(id, removeInfo) {
 });
 
 chrome.bookmarks.onChanged.addListener(function(id, changeInfo) {
+    console.log("onChanged",id,changeInfo);
     BookmarkManager.getById(id).then(bookmark => {
         bookmark.url = changeInfo.url;
         bookmark.title = changeInfo.title;
@@ -45,9 +47,11 @@ chrome.bookmarks.onChanged.addListener(function(id, changeInfo) {
 });
 
 chrome.bookmarks.onMoved.addListener(function(id, moveInfo) {
+    console.log("onMoved", id, moveInfo);
     BookmarkManager.getById(id).then(bookmark => {
         bookmark.index = moveInfo.index;
         bookmark.parentId = moveInfo.parentId;
+        console.log("moveInfo",moveInfo,bookmark);
         BookmarkManager.addChromeBookmark(bookmark);
     })
 });

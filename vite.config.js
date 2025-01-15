@@ -7,7 +7,7 @@ import removeConsole from 'vite-plugin-remove-console'
 const modifyManifest = (isProd) => {
   const manifestCopy = structuredClone(manifest)
   if (!isProd) {
-    manifestCopy.content_security_policy.extension_pages = 
+    manifestCopy.content_security_policy.extension_pages =
       "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; img-src 'self' chrome://favicon/; connect-src 'self' https://generativelanguage.googleapis.com/ ws://localhost:5173 http://localhost:5173"
   }
   return manifestCopy
@@ -15,7 +15,7 @@ const modifyManifest = (isProd) => {
 
 export default defineConfig(({ mode }) => {
   const isProd = mode === 'production'
-  
+
   return {
     plugins: [
       vue(),
@@ -34,6 +34,7 @@ export default defineConfig(({ mode }) => {
       }
     },
     build: {
+      chunkSizeWarningLimit: 1500,
       rollupOptions: {
         input: {
           index: 'index.html',
@@ -44,9 +45,9 @@ export default defineConfig(({ mode }) => {
         },
       },
       minify: 'esbuild',
-      esbuild: {
-        pure: ['console.*', 'debugger'],
-      },
+      // esbuild: {
+      //   pure: ['console.*', 'debugger'],
+      // },
     },
   }
 })

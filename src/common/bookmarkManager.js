@@ -273,14 +273,18 @@ const BookmarkManager = {
                         cursor.continue();
                     } else {
                         console.log(`搜索完成，找到 ${results.length} 个结果-查询条件`,queryDto);
-                        let datas = [];
+                        let datas = [...new Set(results)];
                         if(prop == 'status' && value == -3){
                             console.log("重复书签排序")
-                            datas = results.toSorted((a, b) => a.url.localeCompare(b.url));
+                            datas = datas.toSorted((a, b) => {
+                                let aurl = a.url?a.url.replace(/(http|https):\/\//g, ''):"";
+                                let burl =  b.url?b.url.replace(/(http|https):\/\//g, ''):"";
+                                return aurl.localeCompare(burl);
+                            });
                         }else{
-                            datas = results.toSorted((a, b) => a.index - b.index);
+                            datas = datas.toSorted((a, b) => a.index - b.index);
                         }
-                        resolve([...new Set(datas)]);
+                        resolve(datas);
                     }
                 };
 
