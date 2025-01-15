@@ -811,6 +811,10 @@ export default {
       _this.setting.editModel = config;
     })
     Util.getLocalStorageItem(Constant.ENV.SYS_CRAWL_STATUS).then(config => {
+      if (config == undefined) {
+        config = "0";
+        Util.setLocalStorageItem(Constant.ENV.SYS_CRAWL_STATUS,"0");
+      }
       _this.setting.crawlStatus = config;
     })
     backgroundConn.onMessage.addListener(async function (result) {
