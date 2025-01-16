@@ -380,7 +380,7 @@
           <el-input v-model="bookmark.currentUrl" disabled/>
         </el-form-item>
         <el-form-item label="源标题">
-          <el-input v-model="bookmark.metaTitle" disabled/>
+          <el-input v-model="bookmark.metaTitle" :disabled="!setting.debug"/>
         </el-form-item>
         <el-form-item label="源关键字">
           <el-input v-model="bookmark.metaKeywords" disabled/>
