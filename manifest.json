@@ -8,7 +8,6 @@
     "favicon",
     "bookmarks",
     "storage",
-    "webRequest",
     "activeTab",
     "scripting",
     "webNavigation"

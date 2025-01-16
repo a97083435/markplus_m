@@ -335,6 +335,18 @@
         <el-form-item label="地址">
           <el-input v-model="bookmark.url"/>
         </el-form-item>
+        <el-form-item label="状态">
+          <el-select
+              v-model="bookmark.status"
+          >
+            <el-option
+                v-for="item in bookmarkStatus"
+                :key="item.value"
+                :label="item.key"
+                :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item label="标签">
           <el-space :size="10" style="width: 600px;" wrap>
             <el-tag
@@ -502,6 +514,7 @@ export default {
         crawlStatus: "0"
       },
       bookmarkStatus: [
+        {key: "重复书签", value: -3},
         {key: "域名变化", value: -2},
         {key: "异常", value: -1},
         {key: "待扫描", value: 0},
