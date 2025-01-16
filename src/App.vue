@@ -908,7 +908,12 @@ export default {
             case 9: stat.over++; break;
             case -2: stat.change++; break;
             case -3: stat.same++; break;
-            case 0: stat.pending++; break;
+            case 0:
+              if(data.url && data.url.startsWith('http')){
+                console.log(data);
+                stat.pending++;
+              }
+              break;
           }
         }
         _this.statistics = { ..._this.statistics, ...stat }

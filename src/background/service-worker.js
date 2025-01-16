@@ -82,8 +82,11 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
     }
     const url = details.url;
     const tabKey = Util.getTabKey(details.tabId);
-    // console.log("打开地址:", url)
-    chrome.storage.local.set({[tabKey]: url});
+    Util.getLocalStorageItem(tabKey).then(value => {
+        if (value == undefined) {
+            chrome.storage.local.set({[tabKey]: url})
+        }
+    })
 });
 
 /**
@@ -97,12 +100,16 @@ chrome.webNavigation.onErrorOccurred.addListener((details) => {
     const tabKey = Util.getTabKey(details.tabId);
     const removeTabKey = Util.getRemoveTabKey(details.tabId);
     Util.removeLocalKey(tabKey, (items) => {
+        let searchUrl = url;
+        if (items[tabKey] && items[tabKey] != url) {
+            searchUrl = items[tabKey];
+        }
         console.log("打开标签异常-删除前!",tabKey)
-        BookmarkManager.getByUrl(url).then(datas => {
+        BookmarkManager.getByUrl(searchUrl).then(datas => {
             if (Array.isArray(datas) && datas.length > 0) {
                 for (let bookmark of datas) {
                     if (bookmark && bookmark.id) { // 如果是书签地址
-                        console.log("打开书签异常", bookmark)
+                        console.log("打开书签异常", bookmark,details.error)
                         bookmark.currentUrl = url;
                         try {
                             bookmark.currentDomain = new URL(url).hostname;
@@ -138,12 +145,14 @@ chrome.webNavigation.onCompleted.addListener((details) => {
 
     const tabKey = Util.getTabKey(details.tabId);
     const removeTabKey = Util.getRemoveTabKey(details.tabId);
+    console.log(tabId,url);
     Util.removeLocalKey(tabKey, async (items) => {
         // console.log("加载完成-删除前!", tabKey)
         let searchUrl = url;
         if (items[tabKey] && items[tabKey] != url) {
             searchUrl = items[tabKey];
         }
+        console.log("url",url,searchUrl,searchUrl);
         await BookmarkManager.getByUrl(searchUrl).then(async datas => {
             if (Array.isArray(datas) && datas.length > 0) {
                 const bookmark = datas[0];
@@ -203,7 +212,7 @@ chrome.runtime.onConnect.addListener(function (port) {
                     if (crawlStatus == "0") {
                         return;
                     }
-                    if(data.url.startsWith("chrome")){
+                    if (!data.url || !data.url.startsWith('http')) {
                         continue;
                     }
                     if(!userConfig.crawlStatus.includes(data.status)){
@@ -212,10 +221,15 @@ chrome.runtime.onConnect.addListener(function (port) {
                     await Util.awaitLoad(userConfig);
                     await chrome.tabs.create({url: data.url, active: false}, function (tab) {
                         if(tab){
+                            console.log("创建tab",tab.id,data.url);
                             chrome.storage.local.set({[Util.getRemoveTabKey(tab.id)]: tab.id});
+                            // const tabKey = Util.getTabKey(details.tabId);
+                            // console.log("打开地址:", details.tabId,url)
+                            chrome.storage.local.set({[Util.getTabKey(tab.id)]: data.url});
                         }
                     });
                 }
+                chrome.storage.local.set({[Constant.ENV.SYS_CRAWL_STATUS]: "0"});
             })
         } else {
             BookmarkManager.queryBookmarks(params).then(datas => {

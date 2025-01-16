@@ -72,12 +72,12 @@ const LLM = {
             } finally {
                 this.processing = false;
             }
-        } else if (this.queue.length > 1) {
+        } else if (this.queue.length > 0) {
             // 队列长度不足 batchSize
             this.insufficientCount++;
             // console.log(`队列长度不足 ${this.batchSize}，当前计数：${this.insufficientCount}`);
             // 如果连续N次扫描都不足，处理所有剩余数据
-            if (this.insufficientCount >= this.batchSize*3) {
+            if (this.insufficientCount >= 20) {
                 this.processing = true;
                 try {
                     let length = this.queue.length > this.batchSize ? this.batchSize : this.queue.length;
@@ -111,7 +111,7 @@ const LLM = {
             console.log("总结数据:", resultText);
             if (resultText) {
                 temp = JSON.parse(resultText);
-                if (!Array.isArray(datas)) {
+                if (!Array.isArray(temp)) {
                     datas.push(temp);
                 } else {
                     datas = temp;
