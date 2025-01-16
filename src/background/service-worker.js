@@ -211,7 +211,9 @@ chrome.runtime.onConnect.addListener(function (port) {
                     }
                     await Util.awaitLoad(userConfig);
                     await chrome.tabs.create({url: data.url, active: false}, function (tab) {
-                        chrome.storage.local.set({[Util.getRemoveTabKey(tab.id)]: tab.id});
+                        if(tab){
+                            chrome.storage.local.set({[Util.getRemoveTabKey(tab.id)]: tab.id});
+                        }
                     });
                 }
             })
@@ -254,7 +256,7 @@ async function updateBookMark(datas, tabId) {
             }
         }, async (results) => {
             if (chrome.runtime.lastError) {
-                console.error("执行脚本时出错:", chrome.runtime.lastError);
+                console.warn("执行脚本时出错:", chrome.runtime.lastError);
             } else {
                 let status = 2;
                 if(datas.length > 1){

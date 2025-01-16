@@ -6,7 +6,7 @@ const LLM = {
     queue: [],
     processing: false,
     timer: null,
-    batchSize: 5,  // 每批处理的数量
+    batchSize: 3,  // 每批处理的数量
     scanInterval: 1000,  // 批次间延迟（毫秒）
     insufficientCount: 0,
     config:null,
@@ -23,7 +23,7 @@ const LLM = {
             return this;
         }
         this.config = await UserSetting.getSysConfig();
-        this.batchSize = this.config.crawlQueueLength;
+        // this.batchSize = this.config.crawlQueueLength;
         const genAI = new GoogleGenerativeAI(this.config.providerkey);
         this.model = genAI.getGenerativeModel({
             model: this.config.providerModel,
@@ -72,7 +72,7 @@ const LLM = {
             } finally {
                 this.processing = false;
             }
-        } else if (this.queue.length > 0) {
+        } else if (this.queue.length > 1) {
             // 队列长度不足 batchSize
             this.insufficientCount++;
             // console.log(`队列长度不足 ${this.batchSize}，当前计数：${this.insufficientCount}`);
@@ -80,8 +80,9 @@ const LLM = {
             if (this.insufficientCount >= this.batchSize*3) {
                 this.processing = true;
                 try {
-                    const remainingBookmarks = this.queue.splice(0, this.queue.length);
-                    // console.log(`处理剩余 ${remainingBookmarks.length} 条数据`);
+                    let length = this.queue.length > this.batchSize ? this.batchSize : this.queue.length;
+                    const remainingBookmarks = this.queue.splice(0, length);
+                    console.log(`处理剩余 ${remainingBookmarks.length} 条数据`);
                     await this.summarizeTagsBatch(remainingBookmarks);
                     this.insufficientCount = 0;  // 重置计数
                 } catch (error) {
@@ -98,27 +99,42 @@ const LLM = {
         }
     },
     summarizeTagsBatch: async function (input) {
-        const chatSession = this.model.startChat({
+        let result, resultText, temp;
+        let datas = [];
+        try {
+            const chatSession = this.model.startChat({
                 history: [],
             });
-        console.log("发送数据:", input);
-        const result = await chatSession.sendMessage(JSON.stringify(input));
-        console.log("总结数据:", result.response.candidates[0].content.parts[0].text)
-        const datas = JSON.parse(result.response.candidates[0].content.parts[0].text);
-
-        const map = new Map(datas.map(item => [item.id, item]));
-        for (let data of input) {
-            let temp = map.get(data.id);
-            data.tags = temp['tags'];
-            if(data.status == -3){
-                continue;
-            }else if (data.tags) {
-                data.status = 9;
+            console.log("发送数据:", input);
+            result = await chatSession.sendMessage(JSON.stringify(input));
+            resultText = result?.response?.candidates[0]?.content?.parts?.[0]?.text;
+            console.log("总结数据:", resultText);
+            if (resultText) {
+                temp = JSON.parse(resultText);
+                if (!Array.isArray(datas)) {
+                    datas.push(temp);
+                } else {
+                    datas = temp;
+                }
+                const map = new Map(datas.map(item => [item.id, item]));
+                for (let data of input) {
+                    let temp = map.get(data.id);
+                    data.tags = temp['tags'];
+                    if (data.status == -3) {
+                        continue;
+                    } else if (data.tags) {
+                        data.status = 9;
+                    } else {
+                        console.log("未获取到总结", bookmark)
+                    }
+                }
+                BookmarkManager.saveBookmarks(input);
             } else {
                 console.log("未获取到总结", bookmark)
             }
+        } catch (error) {
+            console.warn("总结异常:", error, "result:", result, "resultText:", resultText, "datas:", datas, "temp:", temp);
         }
-        BookmarkManager.saveBookmarks(input);
     }
 }
 

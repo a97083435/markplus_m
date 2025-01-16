@@ -43,3 +43,9 @@ Chrome 书签增强工具 - 让你的书签管理更智能
 > 总结网页标签需要Google AI Studio密钥，使用的模型是learnlm-1.5-pro-experimental，
 
 ![](docs/images/3.png)
+
+
+## TODO
+- [ ] 国际化
+- [ ] 书签移动
+- [ ] 增删改查文件夹
