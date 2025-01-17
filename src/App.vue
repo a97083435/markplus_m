@@ -893,7 +893,6 @@ export default {
       const _this = this;
       let datas = _this.$refs.bookmarkList.getCheckedNodes().map(node => toRaw(node));
       if(datas && datas.length > 0){
-        console.error(datas.length,datas);
         BookmarkManager.deleteBookmarks(datas).then(() => {
           ElMessage({
             message: '删除成功!',

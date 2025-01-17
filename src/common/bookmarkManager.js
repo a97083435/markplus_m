@@ -83,7 +83,7 @@ const BookmarkManager = {
                     domain: bookmark.url ? new URL(bookmark.url).hostname : null,
                     tags:[],
                     syncChrome: true,
-                    type: bookmark.children ? "folder" : "bookmark",
+                    type: bookmark.url ? "folder" : "bookmark",
                     status: 0,
                     dateAddedTime: new Date(bookmark.dateAdded).toLocaleString(),
                     dateGroupModifiedTime: new Date(bookmark.dateAdded).toLocaleString()
@@ -180,45 +180,81 @@ const BookmarkManager = {
         });
     },
     deleteBookmarks: async function (bookmarks) {
-        let _this = this;
-        return this.initDatabase().then(() => {
-            return new Promise((resolve, reject) => {
+        try {
+            await this.initDatabase();
+
+            // 批量处理函数
+            const processBatch = async (bookmarksBatch) => {
                 const transaction = this.db.transaction([this.storeName], "readwrite");
                 const objectStore = transaction.objectStore(this.storeName);
 
-                transaction.oncomplete = () => {
-                    console.log(`删除完成!`);
-                    resolve();
-                };
+                await Promise.all(bookmarksBatch.map(bookmark =>
+                    new Promise((resolve, reject) => {
+                        const request = objectStore.delete(bookmark.id);
 
-                transaction.onerror = event => {
-                    console.error("删除事务出错", event.target.error);
-                    reject(event);
-                };
-                bookmarks.forEach(bookmark => {
-                    let request;
-                    if (bookmark.type === "bookmark") {
-                        chrome.bookmarks.remove(bookmark.id);
-                        request = objectStore.delete(bookmark.id);
-                        request.onerror = () => {
-                            console.log(request.error);
-                            reject(request.error);
+                        request.onsuccess = async () => {
+                            try {
+                                if (bookmark.type === "bookmark") {
+                                    await chrome.bookmarks.remove(bookmark.id);
+                                } else {
+                                    await chrome.bookmarks.removeTree(bookmark.id);
+                                }
+                            } catch (chromeError) {
+                                console.warn(`Chrome 书签删除失败 (ID: ${bookmark.id}):`, chromeError);
+                            }
+                            resolve();
                         };
-                    } else {
-                        chrome.bookmarks.removeTree(bookmark.id);
-                        _this.queryBookmarks({
-                            prop: 'parentId',
-                            operator: 'eq',
-                            value: bookmark.id
-                        }).then((datas)=>{
-                            _this.deleteBookmarks(datas);
-                        });
-                        objectStore.delete(bookmark.id);
-                    }
-                });
 
-            });
-        });
+                        request.onerror = (event) => {
+                            console.error(`本地存储删除失败 (ID: ${bookmark.id}):`, event);
+                            reject(event);
+                        };
+                    })
+                ));
+
+                // 等待事务完成
+                await new Promise((resolve, reject) => {
+                    transaction.oncomplete = resolve;
+                    transaction.onerror = reject;
+                });
+            };
+
+            // 递归处理文件夹结构
+            const processBookmarkRecursively = async (bookmark) => {
+                if (bookmark.type !== "bookmark") {
+                    const childBookmarks = await this.queryBookmarks({
+                        prop: 'parentId',
+                        operator: 'eq',
+                        value: bookmark.id
+                    });
+
+                    // 递归处理所有子项
+                    for (const child of childBookmarks) {
+                        await processBookmarkRecursively(child);
+                    }
+                }
+                return bookmark;
+            };
+
+            // 先递归收集所有需要删除的书签
+            const allBookmarksToDelete = [];
+            for (const bookmark of bookmarks) {
+                const processed = await processBookmarkRecursively(bookmark);
+                allBookmarksToDelete.push(processed);
+            }
+
+            // 分批处理删除操作
+            const BATCH_SIZE = 50; // 可以根据实际情况调整批次大小
+            for (let i = 0; i < allBookmarksToDelete.length; i += BATCH_SIZE) {
+                const batch = allBookmarksToDelete.slice(i, i + BATCH_SIZE);
+                await processBatch(batch);
+            }
+
+            console.log('所有书签删除操作完成');
+
+        } catch (error) {
+            console.error('书签删除过程中发生错误:', error);
+        }
     },
     queryBookmarks: function (queryDto) {
         return this.initDatabase().then(() => {
