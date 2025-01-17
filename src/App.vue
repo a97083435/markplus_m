@@ -2,15 +2,23 @@
   <el-container>
     <el-header height="50px" style="width: 100%;display: flex;flex-direction: row;padding: 0px;">
       <div style="width: 300px;align-self: end;padding-bottom: 14px;">
-        <el-space :size="25" v-if="setting.editModel" style="margin-left: 10px;">
-          <!--          <el-badge :max="10000" :offset="[-5,0]" :value="statistics.total" title="书签总数" type="info">-->
-          <!--            <el-button style="padding: 5px;" type="default"-->
-          <!--                       @click="searchStatisticsBookmarks({prop: 'parentId',operator: 'eq',value: '1'})">-->
-          <!--              <el-icon size="20px">-->
-          <!--                <Collection/>-->
-          <!--              </el-icon>-->
-          <!--            </el-button>-->
-          <!--          </el-badge>-->
+        <template v-if="setting.editModel">
+          <div style="display: flex;width: 95%;flex-wrap: wrap;justify-content: space-between;">
+            <el-badge v-if="setting.debug" :max="10000" :offset="[-5,0]" :value="statistics.total" title="书签总数" type="info">
+              <el-button style="padding: 5px;" type="default"
+                         @click="searchStatisticsBookmarks({prop: 'parentId',operator: 'eq',value: '1'})">
+                <el-icon size="20px">
+                  <Collection/>
+                </el-icon>
+              </el-button>
+            </el-badge>
+
+            <el-button  style="padding: 5px;" type="default"
+                       @click="searchStatisticsBookmarks({prop: 'status',operator: 'eq',value: -99})">
+              <el-icon size="20px">
+                <MuteNotification/>
+              </el-icon>
+            </el-button>
 
           <el-badge :max="10000" :offset="[-5,0]" :value="statistics.pending" title="待采集" type="info"
                     v-if="statistics.pending>0">
@@ -22,7 +30,7 @@
             </el-button>
           </el-badge>
 
-          <el-badge :max="10000" :offset="[-5,0]" :value="statistics.over" title="采集完成" type="success"
+          <el-badge :max="10000" :offset="[-5,0]" :value="statistics.over" title="采集完成,已总结标签" type="success"
                     v-if="statistics.over>0">
             <el-button style="padding: 5px;" type="default"
                        @click="searchStatisticsBookmarks({prop: 'status',operator: 'in',value: [2,9]})">
@@ -61,9 +69,9 @@
               </el-icon>
             </el-button>
           </el-badge>
-
-        </el-space>
-        <template v-if="!setting.editModel">
+          </div>
+        </template>
+        <template v-else-if="!setting.editModel">
           <el-link href="https://github.com/mjm13/markplus_m" target="_blank" type="primary" style="margin-left: 20px;">
             <el-image fit="cover"
                       style="width: 32px; height: 32px"
@@ -137,6 +145,11 @@
           </el-button>
 
 
+          <el-button circle size="default" title="批量修改状态" type="primary" @click="showBookmarkStatus">
+            <el-icon size="18">
+              <Edit/>
+            </el-icon>
+          </el-button>
 
           <el-popconfirm title="是否确定删除选中数据?" width="200px"
                          @confirm="removeAllCheck">
@@ -216,8 +229,8 @@
                           default-expand-all
                           node-key="id">
                 <template #default="{ node, data }">
-                  <el-row style="width: 97%">
-                    <el-col :span="21">
+                  <el-row style="width: 99%">
+                    <el-col :span="18">
                       <template v-if="data.type === 'folder'">
                         <el-icon style="margin-right: 20px;">
                           <Folder/>
@@ -262,9 +275,48 @@
                             创建时间：{{ data.dateAddedTime }}
                           </template>
                           <el-text class="bookmark-text" truncated @dblclick="openUrl(data)">
-                            {{ data.title ? data.title : data.url }}
+                            {{ data.title ? data.title.slice(0, 110) : data.url }}
                           </el-text>
                         </el-tooltip>
+                      </template>
+                    </el-col>
+                    <el-col :span="3">
+                      <template v-if="data.type === 'bookmark'">
+                        <template v-if="data.status === 2">
+                          <el-icon color="#409efc" title="采集完成">
+                            <CircleCheck/>
+                          </el-icon>
+                        </template>
+                        <template v-else-if="data.status === -99">
+                          <el-icon title="不处理">
+                            <MuteNotification/>
+                          </el-icon>
+                        </template>
+                        <template v-else-if="data.status === 0">
+                          <el-icon title="待采集">
+                            <Compass/>
+                          </el-icon>
+                        </template>
+                        <template v-else-if="data.status === 9">
+                          <el-icon color="#67c23a" title="已总结标签">
+                            <CollectionTag/>
+                          </el-icon>
+                        </template>
+                        <template v-else-if="data.status === -1">
+                          <el-icon color="#F56C6C" title="无法打开">
+                            <CircleClose/>
+                          </el-icon>
+                        </template>
+                        <template v-else-if="data.status === -2">
+                          <el-icon color="#ffc107" title="网址发生变化">
+                            <Warning/>
+                          </el-icon>
+                        </template>
+                        <template v-else-if="data.status === -3">
+                          <el-icon color="#ffc107" title="重复书签">
+                            <DocumentCopy/>
+                          </el-icon>
+                        </template>
                       </template>
                     </el-col>
                     <el-col :span="3">
@@ -272,36 +324,19 @@
                         <el-popconfirm title="是否确定删除?目录会删除所有数据!" width="300px"
                                        @confirm="removeBookmark(data)">
                           <template #reference>
-                            <el-button class="iconBtn" title="删除" type="danger" text>
+                            <el-button circle class="iconBtn" title="删除" type="danger">
                               <el-icon>
                                 <Delete/>
                               </el-icon>
                             </el-button>
                           </template>
                         </el-popconfirm>
-                        <el-button class="iconBtn" title="编辑" type="primary" text @click="editBookmark(data)">
+                        <el-button circle class="iconBtn" title="编辑" type="primary" @click="editBookmark(data)">
                           <el-icon>
                             <Edit/>
                           </el-icon>
                         </el-button>
                       </template>
-                      <!--                        <template v-if="setting.editModel===false">-->
-                      <!--                          <template v-if="data.status === 2 || data.status === 9">-->
-                      <!--                            <el-icon color="#409efc" title="采集完成">-->
-                      <!--                              <CircleCheck />-->
-                      <!--                            </el-icon>-->
-                      <!--                          </template>-->
-                      <!--                          <template v-if="data.status === -1" >-->
-                      <!--                            <el-icon color="#F56C6C" title="无法打开">-->
-                      <!--                              <CircleClose />-->
-                      <!--                            </el-icon>-->
-                      <!--                          </template>-->
-                      <!--                          <template v-if="data.status === -2" >-->
-                      <!--                            <el-icon color="#ffc107" title="网址发生变化">-->
-                      <!--                              <Warning />-->
-                      <!--                            </el-icon>-->
-                      <!--                          </template>-->
-                      <!--                        </template>-->
                     </el-col>
                   </el-row>
                 </template>
@@ -399,6 +434,27 @@
     </el-form>
   </el-dialog>
 
+  <el-dialog v-model="showBookmarkStatusDailog" width="500">
+    <el-form :model="changeBookmarkStatus" label-width="auto">
+      <el-form-item label="状态">
+        <el-select
+            v-model="changeBookmarkStatus.status"
+        >
+          <el-option
+              v-for="item in bookmarkStatus"
+              :key="item.value"
+              :label="item.key"
+              :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="saveBookmarkStatus">保存</el-button>
+        <el-button @click="showBookmarkStatusDailog=false">取消</el-button>
+      </el-form-item>
+    </el-form>
+  </el-dialog>
+
   <el-drawer v-model="setting.showUserConfig" direction="rtl">
     <template #header>
       用户设置
@@ -479,11 +535,10 @@ import {
 } from 'element-plus';
 import BookmarkManager from "./common/bookmarkManager.js";
 import LLM from './common/llmutil.js';
-import {nextTick, ref} from 'vue';
+import {nextTick, ref,toRaw} from 'vue';
 import Setting from "./common/userSetting.js";
 import Util from "./common/utils.js";
 import {Delete} from "@element-plus/icons-vue";
-import UserSetting from "./common/userSetting.js";
 
 const backgroundConn = chrome.runtime.connect({name: "index-background-connection"});
 const InputRef = ref(null);
@@ -514,6 +569,7 @@ export default {
         crawlStatus: "0"
       },
       bookmarkStatus: [
+        {key: "不处理", value: -99},
         {key: "重复书签", value: -3},
         {key: "域名变化", value: -2},
         {key: "异常", value: -1},
@@ -562,10 +618,17 @@ export default {
         }],
       },
       showBookmarkDailog: false,
+      showBookmarkStatusDailog: false,
       inputVisible: false,
       inputValue: '',
+      lastQueryParam: {
+        prop: 'parentId',
+        operator: 'eq',
+        value: '1'
+      },
       bookmark: {},
-      originalBookmark: {}
+      originalBookmark: {},
+      changeBookmarkStatus: {}
     };
   },
   methods: {
@@ -670,11 +733,15 @@ export default {
       BookmarkManager.saveBookmarks(result);
     },
     queryByDir(data) {
-      backgroundConn.postMessage({
-        action: Constant.PAGE_EVENT.QUERY_BOOKMARKS,
+      let _this = this;
+      _this.lastQueryParam = {
         prop: 'parentId',
         operator: 'eq',
         value: data.id
+      }
+      backgroundConn.postMessage({
+        action: Constant.PAGE_EVENT.QUERY_BOOKMARKS,
+        ..._this.lastQueryParam
       });
     },
     crawlMeta() {
@@ -706,17 +773,21 @@ export default {
     searchBookmarks() {
       let _this = this;
       _this.statistics.selectStatus = [];
-      backgroundConn.postMessage({
-        action: Constant.PAGE_EVENT.QUERY_BOOKMARKS,
+      _this.lastQueryParam = {
         prop: _this.searchQuery.prop,
         operator: 'like',
         value: _this.searchQuery.value
+      };
+      backgroundConn.postMessage({
+        action: Constant.PAGE_EVENT.QUERY_BOOKMARKS,
+        ..._this.lastQueryParam
       });
     },
     searchStatisticsBookmarks(param) {
       let status = [];
       status.push(param.value);
       this.statistics.selectStatus = status;
+      this.lastQueryParam = param;
       backgroundConn.postMessage({action: Constant.PAGE_EVENT.QUERY_BOOKMARKS, ...param});
     },
     downLoadBookmarks() {
@@ -754,17 +825,10 @@ export default {
       Util.setLocalStorageItem(Constant.ENV.SYS_PAGE_CONFIG,value);
     },
     reloadBookmarkPage() {
-      // backgroundConn.postMessage({
-      //   action: Constant.PAGE_EVENT.QUERY_FOLDER,
-      //   prop: 'type',
-      //   operator: 'eq',
-      //   value: 'folder'
-      // });
+      let _this = this;
       backgroundConn.postMessage({
         action: Constant.PAGE_EVENT.QUERY_BOOKMARKS,
-        prop: 'parentId',
-        operator: 'eq',
-        value: '1'
+        ..._this.lastQueryParam
       });
       backgroundConn.postMessage({
         action: Constant.PAGE_EVENT.STATISTICS_TOTAL,
@@ -772,6 +836,40 @@ export default {
         operator: 'gt',
         value: '0'
       });
+    },
+    showBookmarkStatus() {
+      const _this = this;
+      let datas = _this.$refs.bookmarkList.getCheckedNodes();
+      if (datas && datas.length > 0) {
+        _this.showBookmarkStatusDailog = true;
+      } else {
+        ElMessage({
+          message: '请选择!',
+          type: 'error',
+        });
+      }
+    },
+    saveBookmarkStatus() {
+      const _this = this;
+      let datas = _this.$refs.bookmarkList.getCheckedNodes();
+      if (datas && datas.length > 0) {
+        for (const bm of datas) {
+          bm.status = _this.changeBookmarkStatus.status;
+        }
+        BookmarkManager.saveBookmarks(datas).then(() => {
+          _this.showBookmarkStatusDailog = false;
+          ElMessage({
+            message: '修改成功!',
+            type: 'success',
+          });
+          _this.reloadBookmarkPage();
+        })
+      } else {
+        ElMessage({
+          message: '请选择!',
+          type: 'error',
+        });
+      }
     },
     handleCheckAll(val) {
       let _this = this;
@@ -793,8 +891,9 @@ export default {
     },
     removeAllCheck() {
       const _this = this;
-      let datas = _this.$refs.bookmarkList.getCheckedNodes();
+      let datas = _this.$refs.bookmarkList.getCheckedNodes().map(node => toRaw(node));
       if(datas && datas.length > 0){
+        console.error(datas.length,datas);
         BookmarkManager.deleteBookmarks(datas).then(() => {
           ElMessage({
             message: '删除成功!',
@@ -910,7 +1009,7 @@ export default {
             case -3: stat.same++; break;
             case 0:
               if(data.url && data.url.startsWith('http')){
-                console.log(data);
+                // console.log(data);
                 stat.pending++;
               }
               break;
@@ -956,13 +1055,13 @@ export default {
   display: inline-block;
   color: initial; /* 初始颜色 */
   text-decoration: none; /* 无下划线 */
-  width: 90%;
+  width: 80%;
 }
 
 .bookmark-text:hover {
   color: #409EFF; /* 悬浮时的颜色 */
   text-decoration: underline; /* 悬浮时的下划线 */
-  width: 90%;
+  width: 80%;
 }
 
 .folder-icon {

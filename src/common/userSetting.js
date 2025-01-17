@@ -27,7 +27,7 @@ const UserSetting={
                         "- 重点关注title、metaTitle、metaKeywords、metaDescription字段\n" +
                         "\n" +
                         "# 输出要求:\n" +
-                        "1. 仅输出JSON格式\n" +
+                        "1. 输出为标准JSON格式\n" +
                         "2. 格式为: {\"tags\": [\"标签1\", \"标签2\", ...]}\n" +
                         "3. 标签数量控制在5-7个\n" +
                         "4. 标签尽量使用中文\n" +

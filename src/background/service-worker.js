@@ -23,13 +23,18 @@ chrome.runtime.onInstalled.addListener(() => {
 
 chrome.bookmarks.onCreated.addListener( function(id, bookmark) {
     console.log("onCreated",id,bookmark);
-    BookmarkManager.addChromeBookmark(bookmark).then(bookmarkDb=>{
-        chrome.tabs.query({ url: bookmark.url }, (tabs) => {
-            if(tabs){
-                updateBookMark([bookmarkDb],tabs[0].id);
-            }
+    if (bookmark.url === undefined) {
+        BookmarkManager.addChromeBookmark(bookmark);
+    }else {
+        BookmarkManager.addChromeBookmark(bookmark).then(bookmarkDb=>{
+            chrome.tabs.query({ url: bookmark.url }, (tabs) => {
+                if(tabs){
+                    updateBookMark([bookmarkDb],tabs[0].id);
+                }
+            });
         });
-    });
+    }
+
 });
 
 chrome.bookmarks.onRemoved.addListener(function(id, removeInfo) {

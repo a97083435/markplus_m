@@ -27,6 +27,7 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 5173,
       strictPort: true, // 如果端口被占用，不要尝试下一个可用端口
+      sourcemap:false,
       hmr: {
         port: 5173,
         protocol: 'ws',
@@ -44,7 +45,8 @@ export default defineConfig(({ mode }) => {
           entryFileNames: 'assets/[name]-[hash].js',
         },
       },
-      minify: 'esbuild',
+      minify: false,
+      sourcemap: false,
       // esbuild: {
       //   pure: ['console.*', 'debugger'],
       // },

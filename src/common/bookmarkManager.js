@@ -179,7 +179,7 @@ const BookmarkManager = {
             });
         });
     },
-    deleteBookmarks: function (bookmarks) {
+    deleteBookmarks: async function (bookmarks) {
         let _this = this;
         return this.initDatabase().then(() => {
             return new Promise((resolve, reject) => {
