@@ -71,6 +71,7 @@ const BookmarkManager = {
             return new Promise(async (resolve, reject) => {
                 const transaction = this.db.transaction([this.storeName], "readwrite");
                 const objectStore = transaction.objectStore(this.storeName);
+                console.log("同步chrome添加书签展开前",bookmark)
                 const bookmarkDb = {
                     id: bookmark.id,
                     parentId: bookmark.parentId,
@@ -88,6 +89,7 @@ const BookmarkManager = {
                     dateAddedTime: new Date(bookmark.dateAdded).toLocaleString(),
                     dateGroupModifiedTime: new Date(bookmark.dateAdded).toLocaleString()
                 };
+                console.log("同步chrome添加书签",bookmarkDb)
                 let parent =await _this.getParentSync(objectStore,bookmark.parentId);
                 bookmarkDb.treeId = parent.treeId+"/"+parent.id;
                 bookmarkDb.treeName = parent.treeName+"/"+parent.title;
