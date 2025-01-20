@@ -206,6 +206,22 @@ chrome.runtime.onConnect.addListener(function (port) {
             })
         } else if (params.action === Constant.PAGE_EVENT.STOP_CRAWL_META) {
             chrome.storage.local.set({[Constant.ENV.SYS_CRAWL_STATUS]: "0"});
+        }  else if (params.action === Constant.PAGE_EVENT.RELOAD_BOOKMARK) {
+            BookmarkManager.clearAll().then(value => {
+                chrome.bookmarks.getTree(async function (bookmarkTreeNodes) {
+                    const bookmarks = Util.flattenBookmarkTree(bookmarkTreeNodes);
+                    let dbCount = await BookmarkManager.dbCount();
+                    if (dbCount != bookmarks.length) {
+                        BookmarkManager.saveBookmarks(bookmarks)
+                            .then(result => {
+                                port.postMessage({action: Constant.PAGE_EVENT.RELOAD_PAGE})
+                            })
+                            .catch(error => {
+                                console.error("初始化或验证书签时出错:", error);
+                            });
+                    }
+                });
+            });
         } else if (params.action === Constant.PAGE_EVENT.CRAWL_META) {
             chrome.storage.local.set({[Constant.ENV.SYS_CRAWL_STATUS]: "1"});
             BookmarkManager.queryBookmarks(params).then(async datas => {

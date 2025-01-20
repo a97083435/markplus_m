@@ -161,6 +161,17 @@
               </el-button>
             </template>
           </el-popconfirm>
+
+          <el-popconfirm title="是否确定重新加载书签，清空采集信息?" width="200px"
+                         @confirm="reloadBookMark">
+            <template #reference>
+              <el-button circle size="default" title="重新加载书签" type="danger" >
+                <el-icon size="18">
+                  <Connection />
+                </el-icon>
+              </el-button>
+            </template>
+          </el-popconfirm>
         </template>
 
         <template v-if="setting.debug">
@@ -744,6 +755,11 @@ export default {
         ..._this.lastQueryParam
       });
     },
+    reloadBookMark(){
+      backgroundConn.postMessage({
+        action: Constant.PAGE_EVENT.RELOAD_BOOKMARK
+      });
+    },
     crawlMeta() {
       const _this = this;
       Setting.getSysConfig().then(config => {
@@ -973,6 +989,8 @@ export default {
         a.click();
       } else if (result.action === Constant.PAGE_EVENT.SAVE_TO_D1) {
         LLM.summarizeTags(JSON.stringify(result.datas[0]));
+      }  else if (result.action === Constant.PAGE_EVENT.RELOAD_PAGE) {
+        _this.reloadBookmarkPage();
       } else if (result.action === Constant.PAGE_EVENT.STATISTICS_TOTAL) {
         const { datas } = result;
         const stat = {

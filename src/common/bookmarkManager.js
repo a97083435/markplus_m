@@ -35,19 +35,19 @@ const BookmarkManager = {
             });
         }
     },
-    getById: async function (id){
+    clearAll: async function () {
         return this.initDatabase().then(() => {
             return new Promise((resolve, reject) => {
-                const transaction = this.db.transaction([this.storeName], "readonly");
+                const transaction = this.db.transaction([this.storeName], "readwrite");
                 const objectStore = transaction.objectStore(this.storeName);
-                let countRequest = objectStore.get(id);
+                const clearRequest = objectStore.clear();
 
-                countRequest.onsuccess = (event) => {
-                    resolve(event.target.result);
+                clearRequest.onsuccess = () => {
+                    resolve("All records have been cleared");
                 };
 
-                countRequest.onerror = () => {
-                    reject(countRequest.error);
+                clearRequest.onerror = () => {
+                    reject(clearRequest.error);
                 };
             });
         });
