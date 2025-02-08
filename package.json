@@ -12,11 +12,15 @@
     "@crxjs/vite-plugin": "^2.0.0-beta.25",
     "@element-plus/icons-vue": "^2.3.1",
     "@google/generative-ai": "^0.21.0",
+    "@intlify/unplugin-vue-i18n": "^6.0.3",
     "@types/chrome": "^0.0.270",
     "chrome-types": "^0.1.301",
     "element-plus": "^2.8.1",
+    "i18next-browser-languagedetector": "^8.0.2",
     "terser": "^5.33.0",
-    "vue": "^3.4.37"
+    "vue": "^3.4.37",
+    "vue-i18n": "^11.0.0-rc.1",
+    "vue-i18next": "^0.9.4"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.1.2",

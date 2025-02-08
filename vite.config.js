@@ -3,6 +3,8 @@ import vue from '@vitejs/plugin-vue'
 import { crx } from '@crxjs/vite-plugin'
 import manifest from './manifest.json'
 import removeConsole from 'vite-plugin-remove-console'
+import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
+import path from 'path'
 
 const modifyManifest = (isProd) => {
   const manifestCopy = structuredClone(manifest)
@@ -19,6 +21,9 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       vue(),
+      VueI18nPlugin({
+        include: [path.resolve(__dirname, './src/i18n/**')]
+      }),
       crx({ manifest: modifyManifest(isProd) }),
       removeConsole({ // 注意：根据插件的版本和选项，可能需要调整
         target: 'console'

@@ -1,0 +1,82 @@
+{
+  "statistics": {
+    "total": "书签总数",
+    "undo": "不处理",
+    "error": "异常书签数",
+    "over": "采集完成,已总结标签",
+    "pending": "待采集",
+    "change": "域名变化",
+    "same": "重复书签",
+    "show": "查询总数"
+  },
+  "btn": {
+    "save": "保存",
+    "close": "取消",
+    "del": "删除",
+    "delSelect": "删除选中书签",
+    "edit": "编辑",
+    "crawlMeta": "获取所有书签源数据",
+    "stopCrawlMeta": "停止获取",
+    "userConfig": "用户配置",
+    "showBookmarkStatus": "批量修改状态",
+    "reloadBookMark": "重新加载书签"
+  },
+  "bookmarkDailog": {
+    "dailogTitle": "详情"
+  },
+  "confirm": {
+    "delete": "是否确定删除?目录会删除所有数据!",
+    "reloadBookMark": "是否确定重新加载书签，清空采集信息?",
+    "deleteAll": "是否确定删除选中数据?"
+  },
+  "bookmark": {
+    "title": "标题",
+    "folder": "目录",
+    "url": "地址",
+    "status": "状态",
+    "tags": "标签",
+    "treeName": "目录",
+    "currentUrl": "当前地址",
+    "metaTitle": "源标题",
+    "metaKeywords": "源关键字",
+    "metaDescription": "源描述",
+    "dateAddedTime": "添加时间",
+    "status_show": {
+      "2": "采集完成",
+      "-99": "不处理",
+      "0": "待采集",
+      "1": "已采集",
+      "9": "已总结标签",
+      "-1": "无法打开",
+      "-2": "网址发生变化",
+      "-3": "重复书签"
+    }
+  },
+  "userConfig": {
+    "title": "用户设置",
+    "crawlQueueLength": "扫描标签并发数",
+    "crawlQueueLength_title": "点击扫描时，同时扫描书签的个数",
+    "crawlStatus": "扫描状态",
+    "crawlStatus_title": "点击扫描时，扫描的书签状态",
+    "llmEnabled": "Gemini总结网页标签",
+    "provider": "llm供应商",
+    "providerkey": "Gemini密钥",
+    "providerModel": "llm模型名称",
+    "promt": "总结标签提示词"
+  },
+  "searchQuery": {
+    "all":"全部",
+    "tags":"标签",
+    "title":"标题",
+    "metaTitle":"源标题",
+    "metaKeywords":"源关键词",
+    "metaDescription":"源描述",
+    "url":"网址"
+  },
+  "tips": {
+    "modifyUserSuccess": "修改用户配置成功!",
+    "success": "操作成功!",
+    "modifyUserFirst": "请先配置用户参数!",
+    "select": "请选择!"
+  }
+}

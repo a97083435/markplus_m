@@ -1,0 +1,82 @@
+{
+  "statistics": {
+    "total": "Total number of bookmarks",
+    "undo": "Do not process",
+    "error": "Number of abnormal bookmarks",
+    "over": "Collection completed, tags summarized",
+    "pending": "Pending collection",
+    "change": "Domain name change",
+    "same": "Duplicate bookmarks",
+    "show": "Total number of queries"
+  },
+  "btn": {
+    "save": "Save",
+    "close": "Cancel",
+    "del": "Delete",
+    "delSelect": "Delete selected bookmarks",
+    "edit": "Edit",
+    "crawlMeta": "Get source data of all bookmarks",
+    "stopCrawlMeta": "Stop getting",
+    "userConfig": "User configuration",
+    "showBookmarkStatus": "Batch modify status",
+    "reloadBookMark": "Reload bookmarks"
+  },
+  "bookmarkDailog": {
+    "dailogTitle": "Details"
+  },
+  "confirm": {
+    "delete": "Are you sure to delete? The directory will delete all data!",
+    "reloadBookMark": "Are you sure to reload bookmarks and clear collection information?",
+    "deleteAll": "Are you sure to delete the selected data?"
+  },
+  "bookmark": {
+    "title": "Title",
+    "folder": "Directory",
+    "url": "Address",
+    "status": "Status",
+    "tags": "Tags",
+    "treeName": "Directory",
+    "currentUrl": "Current address",
+    "metaTitle": "Source title",
+    "metaKeywords": "Source keywords",
+    "metaDescription": "Source description",
+    "dateAddedTime": "Added time",
+    "status_show": {
+      "2": "Collection completed",
+      "-99": "Do not process",
+      "0": "Pending collection",
+      "1": "Collection",
+      "9": "Tags summarized",
+      "-1": "Cannot open",
+      "-2": "Website URL changed",
+      "-3": "Duplicate bookmarks"
+    }
+  },
+  "userConfig": {
+    "title": "User settings",
+    "crawlQueueLength": "Concurrent number of scanned tags",
+    "crawlQueueLength_title": "The number of bookmarks scanned simultaneously when clicking scan",
+    "crawlStatus": "Scan status",
+    "crawlStatus_title": "The status of bookmarks scanned when clicking scan",
+    "llmEnabled": "Gemini summarize web page tags",
+    "provider": "LLM provider",
+    "providerkey": "Gemini key",
+    "providerModel": "LLM model name",
+    "promt": "Prompt for summarizing tags"
+  },
+  "searchQuery": {
+    "all":"All",
+    "tags":"Tags",
+    "title":"Title",
+    "metaTitle":"Source title",
+    "metaKeywords":"Source keywords",
+    "metaDescription":"Source description",
+    "url":"Website URL"
+  },
+  "tips": {
+    "modifyUserSuccess": "User configuration modified successfully!",
+    "success": "Operation successful!",
+    "modifyUserFirst": "Please configure user parameters first!",
+    "select": "Please select!"
+  }
+}

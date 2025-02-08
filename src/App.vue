@@ -4,7 +4,7 @@
       <div style="width: 300px;align-self: end;padding-bottom: 14px;">
         <template v-if="setting.editModel">
           <div style="display: flex;width: 95%;flex-wrap: wrap;justify-content: space-between;">
-            <el-badge v-if="setting.debug" :max="10000" :offset="[-5,0]" :value="statistics.total" title="书签总数" type="info">
+            <el-badge v-if="setting.debug" :max="10000" :offset="[-5,0]" :value="statistics.total" :title="t('statistics.total')" type="info">
               <el-button style="padding: 5px;" type="default"
                          @click="searchStatisticsBookmarks({prop: 'parentId',operator: 'eq',value: '1'})">
                 <el-icon size="20px">
@@ -13,14 +13,14 @@
               </el-button>
             </el-badge>
 
-            <el-button  style="padding: 5px;" type="default"
+            <el-button  style="padding: 5px;" type="default" :title="t('statistics.undo')"
                        @click="searchStatisticsBookmarks({prop: 'status',operator: 'eq',value: -99})">
               <el-icon size="20px">
                 <MuteNotification/>
               </el-icon>
             </el-button>
 
-          <el-badge :max="10000" :offset="[-5,0]" :value="statistics.pending" title="待采集" type="info"
+          <el-badge :max="10000" :offset="[-5,0]" :value="statistics.pending" :title="t('statistics.pending')" type="info"
                     v-if="statistics.pending>0">
             <el-button style="padding: 5px;" type="default"
                        @click="searchStatisticsBookmarks({prop: 'status',operator: 'eq',value: 0})">
@@ -30,7 +30,7 @@
             </el-button>
           </el-badge>
 
-          <el-badge :max="10000" :offset="[-5,0]" :value="statistics.over" title="采集完成,已总结标签" type="success"
+          <el-badge :max="10000" :offset="[-5,0]" :value="statistics.over" :title="t('statistics.over')" type="success"
                     v-if="statistics.over>0">
             <el-button style="padding: 5px;" type="default"
                        @click="searchStatisticsBookmarks({prop: 'status',operator: 'in',value: [2,9]})">
@@ -40,7 +40,7 @@
             </el-button>
           </el-badge>
 
-          <el-badge :max="10000" :offset="[-5,0]" :value="statistics.same" title="重复书签" type="warning"
+          <el-badge :max="10000" :offset="[-5,0]" :value="statistics.same" :title="t('statistics.same')" type="warning"
                     v-if="statistics.same>0">
             <el-button style="padding: 5px;" type="default"
                        @click="searchStatisticsBookmarks({prop: 'status',operator: 'eq',value: -3})">
@@ -50,7 +50,7 @@
             </el-button>
           </el-badge>
 
-          <el-badge :max="10000" :offset="[-5,0]" :value="statistics.change" title="域名变化" type="warning"
+          <el-badge :max="10000" :offset="[-5,0]" :value="statistics.change" :title="t('statistics.change')" type="warning"
                     v-if="statistics.change>0">
             <el-button style="padding: 5px;" type="default"
                        @click="searchStatisticsBookmarks({prop: 'status',operator: 'eq',value: -2})">
@@ -60,7 +60,7 @@
             </el-button>
           </el-badge>
 
-          <el-badge :max="10000" :offset="[-5,0]" :value="statistics.error" title="异常书签数" type="danger"
+          <el-badge :max="10000" :offset="[-5,0]" :value="statistics.error" :title="t('statistics.error')" type="danger"
                     v-if="statistics.error>0">
             <el-button style="padding: 5px;" type="default"
                        @click="searchStatisticsBookmarks({prop: 'status',operator: 'eq',value: -1})">
@@ -83,7 +83,6 @@
       </div>
       <div style="width: calc(99% - 620px);align-self: center;padding-left: 20px;">
         <el-input v-model="searchQuery.value"
-                  placeholder="搜索书签"
                   size="default"
                   style="width: 98%"
                   @keydown.enter="searchBookmarks">
@@ -124,37 +123,37 @@
         </el-switch>
 
         <template v-if="setting.editModel">
-          <el-button circle size="default" title="获取所有书签源数据" type="success" @click="crawlMeta"
+          <el-button circle size="default" :title="t('btn.crawlMeta')" type="success" @click="crawlMeta"
                      v-if="setting.crawlStatus == '0'">
             <el-icon size="18">
               <Promotion/>
             </el-icon>
           </el-button>
 
-          <el-button circle size="default" title="停止获取" type="danger" @click="stopCrawlMeta"
+          <el-button circle size="default" :title="t('btn.stopCrawlMeta')" type="danger" @click="stopCrawlMeta"
                      v-else-if="setting.crawlStatus == '1'">
             <el-icon size="18">
               <SwitchButton/>
             </el-icon>
           </el-button>
 
-          <el-button circle size="default" title="用户配置" type="warning" @click="setting.showUserConfig=true">
+          <el-button circle size="default" :title="t('btn.userConfig')" type="warning" @click="setting.showUserConfig=true">
             <el-icon size="18">
               <Setting/>
             </el-icon>
           </el-button>
 
 
-          <el-button circle size="default" title="批量修改状态" type="primary" @click="showBookmarkStatus">
+          <el-button circle size="default" :title="t('btn.showBookmarkStatus')" type="primary" @click="showBookmarkStatus">
             <el-icon size="18">
               <Edit/>
             </el-icon>
           </el-button>
 
-          <el-popconfirm title="是否确定删除选中数据?" width="200px"
+          <el-popconfirm :title="t('confirm.deleteAll')"  width="200px"
                          @confirm="removeAllCheck">
             <template #reference>
-              <el-button circle size="default" title="删除选中书签" type="danger" >
+              <el-button circle size="default" :title="t('btn.delSelect')" type="danger" >
                 <el-icon size="18">
                   <Delete/>
                 </el-icon>
@@ -162,10 +161,10 @@
             </template>
           </el-popconfirm>
 
-          <el-popconfirm title="是否确定重新加载书签，清空采集信息?" width="200px"
+          <el-popconfirm :title="t('confirm.reloadBookMark')" width="200px"
                          @confirm="reloadBookMark">
             <template #reference>
-              <el-button circle size="default" title="重新加载书签" type="danger" >
+              <el-button circle size="default" :title="t('btn.reloadBookMark')" type="danger" >
                 <el-icon size="18">
                   <Connection />
                 </el-icon>
@@ -217,7 +216,6 @@
                     :round="true"
                     class="child-count-tag"
                     size="small"
-                    title="子节点数量"
                     type="info"
                 >
                   {{ data.childrenCount }}
@@ -255,9 +253,9 @@
                             <template v-if="setting.debug">
                             id：{{ data.id }}<br/>
                             </template>
-                            标题：{{ data.title }}<br/>
-                            目录：{{ data.treeName }}<br/>
-                            创建时间：{{ data.dateAddedTime }}
+                            {{ t('bookmark.title') }}：{{ data.title }}<br/>
+                            {{ t('bookmark.treeName') }}：{{ data.treeName }}<br/>
+                            {{ t('bookmark.dateAddedTime') }}：{{ data.dateAddedTime }}
                           </template>
                           <el-text class="dir-text" @dblclick="queryByDir(data)">
                             {{ data.title }}
@@ -276,14 +274,14 @@
                               id：{{ data.id }}<br/>
                               status：{{ data.status }}<br/>
                             </template>
-                            目录：{{ data.treeName }}<br/>
-                            标题：{{ data.title }}<br/>
-                            地址：{{ data.url }}<br/>
-                            当前地址：{{ data.currentUrl }}<br/>
-                            源标题：{{ data.metaTitle }}<br/>
-                            源描述：{{ data.metaDescription }}<br/>
-                            源标签：{{ data.tags }}<br/>
-                            创建时间：{{ data.dateAddedTime }}
+                            {{ t('bookmark.treeName') }}：{{ data.treeName }}<br/>
+                            {{ t('bookmark.title') }}：{{ data.title }}<br/>
+                            {{ t('bookmark.url') }}：{{ data.url }}<br/>
+                            {{ t('bookmark.currentUrl') }}：{{ data.currentUrl }}<br/>
+                            {{ t('bookmark.metaTitle') }}：{{ data.metaTitle }}<br/>
+                            {{ t('bookmark.metaDescription') }}：{{ data.metaDescription }}<br/>
+                            {{ t('bookmark.tags') }}：{{ data.tags }}<br/>
+                            {{ t('bookmark.dateAddedTime') }}：{{ data.dateAddedTime }}
                           </template>
                           <el-text class="bookmark-text" truncated @dblclick="openUrl(data)">
                             {{ data.title ? data.title.slice(0, 110) : data.url }}
@@ -294,37 +292,37 @@
                     <el-col :span="3">
                       <template v-if="data.type === 'bookmark'">
                         <template v-if="data.status === 2">
-                          <el-icon color="#409efc" title="采集完成">
+                          <el-icon color="#409efc" :title="t('bookmark.status_show.2')">
                             <CircleCheck/>
                           </el-icon>
                         </template>
                         <template v-else-if="data.status === -99">
-                          <el-icon title="不处理">
+                          <el-icon :title="t('bookmark.status_show.-99')">
                             <MuteNotification/>
                           </el-icon>
                         </template>
                         <template v-else-if="data.status === 0">
-                          <el-icon title="待采集">
+                          <el-icon :title="t('bookmark.status_show.0')">
                             <Compass/>
                           </el-icon>
                         </template>
                         <template v-else-if="data.status === 9">
-                          <el-icon color="#67c23a" title="已总结标签">
+                          <el-icon color="#67c23a" :title="t('bookmark.status_show.9')">
                             <CollectionTag/>
                           </el-icon>
                         </template>
                         <template v-else-if="data.status === -1">
-                          <el-icon color="#F56C6C" title="无法打开">
+                          <el-icon color="#F56C6C" :title="t('bookmark.status_show.-1')">
                             <CircleClose/>
                           </el-icon>
                         </template>
                         <template v-else-if="data.status === -2">
-                          <el-icon color="#ffc107" title="网址发生变化">
+                          <el-icon color="#ffc107" :title="t('bookmark.status_show.-2')">
                             <Warning/>
                           </el-icon>
                         </template>
                         <template v-else-if="data.status === -3">
-                          <el-icon color="#ffc107" title="重复书签">
+                          <el-icon color="#ffc107" :title="t('bookmark.status_show.-3')">
                             <DocumentCopy/>
                           </el-icon>
                         </template>
@@ -332,17 +330,17 @@
                     </el-col>
                     <el-col :span="3">
                       <template v-if="setting.editModel">
-                        <el-popconfirm title="是否确定删除?目录会删除所有数据!" width="300px"
+                        <el-popconfirm :title="t('confirm.delete')" width="300px"
                                        @confirm="removeBookmark(data)">
                           <template #reference>
-                            <el-button circle class="iconBtn" title="删除" type="danger">
+                            <el-button circle class="iconBtn" :title="t('btn.del')" type="danger">
                               <el-icon>
                                 <Delete/>
                               </el-icon>
                             </el-button>
                           </template>
                         </el-popconfirm>
-                        <el-button circle class="iconBtn" title="编辑" type="primary" @click="editBookmark(data)">
+                        <el-button circle class="iconBtn" :title="t('btn.edit')" type="primary" @click="editBookmark(data)">
                           <el-icon>
                             <Edit/>
                           </el-icon>
@@ -357,7 +355,7 @@
           </template>
         </el-auto-resizer>
 
-        <el-badge :max="10000" :value="statistics.show" title="查询总数" type="info"
+        <el-badge :max="10000" :value="statistics.show" :title="t('statistics.show')" type="info"
                   style="position: absolute;top: 95%;left: 97%;z-index: 1000">
           <template #content="{ value }">
             {{ value }}
@@ -367,21 +365,21 @@
     </el-container>
   </el-container>
 
-  <el-dialog v-model="showBookmarkDailog" title="详情" width="500">
+  <el-dialog v-model="showBookmarkDailog" :title="t('bookmarkDailog.dailogTitle')" width="500">
     <el-form :model="bookmark" label-width="auto">
-      <el-form-item label="名称">
+      <el-form-item :label="t('bookmark.title')">
         <el-input v-model="bookmark.title"/>
       </el-form-item>
       <template v-if="bookmark.type === 'folder'">
-        <el-form-item label="目录">
+        <el-form-item :label="t('bookmark.treeName')">
           <el-input v-model="bookmark.treeName" disabled/>
         </el-form-item>
       </template>
       <template v-if="bookmark.type === 'bookmark'">
-        <el-form-item label="地址">
+        <el-form-item :label="t('bookmark.url')">
           <el-input v-model="bookmark.url"/>
         </el-form-item>
-        <el-form-item label="状态">
+        <el-form-item :label="t('bookmark.status')">
           <el-select
               v-model="bookmark.status"
           >
@@ -393,7 +391,7 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="标签">
+        <el-form-item :label="t('bookmark.tags')">
           <el-space :size="10" style="width: 600px;" wrap>
             <el-tag
                 v-for="tag in bookmark.tags"
@@ -414,40 +412,40 @@
                 @keyup.enter="handleInputConfirm"
             />
             <el-button v-else class="button-new-tag" size="small" @click="showInput">
-              +标签
+              +{{ t('bookmark.tags') }}
             </el-button>
           </el-space>
         </el-form-item>
 
-        <el-form-item label="目录">
+        <el-form-item :label="t('bookmark.treeName')">
           <el-input v-model="bookmark.treeName" disabled/>
         </el-form-item>
-        <el-form-item label="当前地址">
+        <el-form-item :label="t('bookmark.currentUrl')">
           <el-input v-model="bookmark.currentUrl" disabled/>
         </el-form-item>
-        <el-form-item label="源标题">
+        <el-form-item :label="t('bookmark.metaTitle')">
           <el-input v-model="bookmark.metaTitle" :disabled="!setting.debug"/>
         </el-form-item>
-        <el-form-item label="源关键字">
+        <el-form-item :label="t('bookmark.metaKeywords')">
           <el-input v-model="bookmark.metaKeywords" disabled/>
         </el-form-item>
-        <el-form-item label="源描述">
+        <el-form-item :label="t('bookmark.metaDescription')">
           <el-input v-model="bookmark.metaDescription" autosize disabled type="textarea"/>
         </el-form-item>
       </template>
-      <el-form-item label="添加时间">
+      <el-form-item :label="t('bookmark.dateAddedTime')">
         <el-input v-model="bookmark.dateAddedTime" disabled/>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="saveBookmark">保存</el-button>
-        <el-button @click="closeBookmarkDialog">取消</el-button>
+        <el-button type="primary" @click="saveBookmark">{{ t('btn.save') }}</el-button>
+        <el-button @click="closeBookmarkDialog">{{ t('btn.close') }}</el-button>
       </el-form-item>
     </el-form>
   </el-dialog>
 
   <el-dialog v-model="showBookmarkStatusDailog" width="500">
     <el-form :model="changeBookmarkStatus" label-width="auto">
-      <el-form-item label="状态">
+      <el-form-item :label="t('bookmark.status')">
         <el-select
             v-model="changeBookmarkStatus.status"
         >
@@ -460,19 +458,19 @@
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="saveBookmarkStatus">保存</el-button>
-        <el-button @click="showBookmarkStatusDailog=false">取消</el-button>
+        <el-button type="primary" @click="saveBookmarkStatus">{{ t('btn.save') }}</el-button>
+        <el-button @click="showBookmarkStatusDailog=false">{{ t('btn.close') }}</el-button>
       </el-form-item>
     </el-form>
   </el-dialog>
 
   <el-drawer v-model="setting.showUserConfig" direction="rtl">
     <template #header>
-      用户设置
+      {{ t('userConfig.title') }}
     </template>
     <template #default>
       <el-form :model="userSetting" label-width="auto" label-position="top">
-        <el-form-item label="扫描标签并发数" title="点击扫描时，同时扫描书签的个数">
+        <el-form-item :label="t('userConfig.crawlQueueLength')" :title="t('userConfig.crawlQueueLength_title')">
           <el-slider
               v-model="userSetting.crawlQueueLength"
               :min="1"
@@ -480,7 +478,7 @@
               :show-input="true"
           />
         </el-form-item>
-        <el-form-item label="扫描状态" title="点击扫描时，扫描的书签状态">
+        <el-form-item :label="t('userConfig.crawlStatus')" :title="t('userConfig.crawlStatus_title')">
           <el-select
               v-model="userSetting.crawlStatus"
               multiple
@@ -497,34 +495,33 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="Gemini总结网页标签" label-position="left">
+        <el-form-item :label="t('userConfig.llmEnabled')" label-position="left">
           <el-switch v-model="userSetting.llmEnabled"/>
           <br/>
         </el-form-item>
         <el-card v-show="userSetting.llmEnabled">
-          <el-form-item label="llm供应商" v-show="false">
+          <el-form-item :label="t('userConfig.provider')" v-show="false">
             <el-input v-model="userSetting.provider"/>
           </el-form-item>
-          <el-form-item label="Gemini密钥">
+          <el-form-item :label="t('userConfig.providerkey')">
             <el-input v-model="userSetting.providerkey"/>
           </el-form-item>
-          <el-form-item label="llm模型名称" v-show="false">
+          <el-form-item :label="t('userConfig.providerModel')" v-show="false">
             <el-input v-model="userSetting.providerModel"/>
           </el-form-item>
-          <el-form-item label="总结标签提示词">
+          <el-form-item :label="t('userConfig.promt')">
             <el-input
                 v-model="userSetting.promt"
                 :rows="8"
                 type="textarea"
-                placeholder="请输入提示词"
             />
           </el-form-item>
         </el-card>
       </el-form>
     </template>
     <template #footer>
-      <el-button type="primary" @click="saveUserSetting">保存</el-button>
-      <el-button @click="setting.showUserConfig=false">关闭</el-button>
+      <el-button type="primary" @click="saveUserSetting">{{ t('btn.save') }}</el-button>
+      <el-button @click="setting.showUserConfig=false">{{ t('btn.close') }}</el-button>
     </template>
   </el-drawer>
 </template>
@@ -546,6 +543,7 @@ import {
 } from 'element-plus';
 import BookmarkManager from "./common/bookmarkManager.js";
 import LLM from './common/llmutil.js';
+import { useI18n } from 'vue-i18n'
 import {nextTick, ref,toRaw} from 'vue';
 import Setting from "./common/userSetting.js";
 import Util from "./common/utils.js";
@@ -553,7 +551,6 @@ import {Delete} from "@element-plus/icons-vue";
 
 const backgroundConn = chrome.runtime.connect({name: "index-background-connection"});
 const InputRef = ref(null);
-
 export default {
   name: 'App',
   components: {
@@ -570,7 +567,15 @@ export default {
     ElButton,
     ElMessage
   },
+  setup() {
+    const { t, locale } = useI18n({
+      inheritLocale: true,
+      useScope: 'local'
+    })
+    return { t, locale }
+  },
   data() {
+    let _this = this;
     return {
       userSetting: {},
       setting: {
@@ -580,13 +585,13 @@ export default {
         crawlStatus: "0"
       },
       bookmarkStatus: [
-        {key: "不处理", value: -99},
-        {key: "重复书签", value: -3},
-        {key: "域名变化", value: -2},
-        {key: "异常", value: -1},
-        {key: "待扫描", value: 0},
-        {key: "已扫描", value: 1},
-        {key: "已总结", value: 9},
+        {key: _this.t('bookmark.status_show.-99'), value: -99},
+        {key: _this.t('bookmark.status_show.-3'), value: -3},
+        {key: _this.t('bookmark.status_show.-2'), value: -2},
+        {key: _this.t('bookmark.status_show.-1'), value: -1},
+        {key: _this.t('bookmark.status_show.0'), value: 0},
+        {key: _this.t('bookmark.status_show.1'), value: 1},
+        {key: _this.t('bookmark.status_show.9'), value: 9},
       ],
       treeData: [{
         id: 0,
@@ -607,25 +612,25 @@ export default {
         value: "",
         options: [{
           value: 'all',
-          label: '全部'
+          label: _this.t('searchQuery.all')
         }, {
           value: 'tags',
-          label: '标签'
+          label: _this.t('searchQuery.tags')
         }, {
           value: 'title',
-          label: '标题'
+          label: _this.t('searchQuery.title')
         }, {
           value: 'metaTitle',
-          label: '源标题'
+          label: _this.t('searchQuery.metaTitle')
         }, {
           value: 'metaKeywords',
-          label: '源关键词'
+          label: _this.t('searchQuery.metaKeywords')
         }, {
           value: 'metaDescription',
-          label: '源描述'
+          label: _this.t('searchQuery.metaDescription')
         }, {
           value: 'url',
-          label: '网址'
+          label: _this.t('searchQuery.url')
         }],
       },
       showBookmarkDailog: false,
@@ -665,10 +670,11 @@ export default {
       this.inputValue = ''
     },
     saveUserSetting() {
+      const _this = this;
       Setting.setSysConfig(this.userSetting);
       LLM.clear();
       ElMessage({
-        message: '修改用户配置成功!',
+        message: _this.t('tips.modifyUserSuccess'),
         type: 'success',
       });
       this.setting.showUserConfig = false;
@@ -684,7 +690,7 @@ export default {
       }
       BookmarkManager.saveBookmarks([_this.bookmark]).then(() => {
         ElMessage({
-          message: '保存成功!',
+          message: _this.t('tips.success'),
           type: 'success',
         })
         _this.reloadBookmarkPage();
@@ -765,7 +771,7 @@ export default {
       Setting.getSysConfig().then(config => {
         if (config.llmEnabled && Util.hasEmptyProperty(config)) {
           ElMessage({
-            message: '请先配置用户参数!',
+            message: _this.t('tips.modifyUserFirst'),
             type: 'error',
           });
           return;
@@ -860,7 +866,7 @@ export default {
         _this.showBookmarkStatusDailog = true;
       } else {
         ElMessage({
-          message: '请选择!',
+          message: _this.t('tips.select'),
           type: 'error',
         });
       }
@@ -875,14 +881,14 @@ export default {
         BookmarkManager.saveBookmarks(datas).then(() => {
           _this.showBookmarkStatusDailog = false;
           ElMessage({
-            message: '修改成功!',
+            message: _this.t('tips.success'),
             type: 'success',
           });
           _this.reloadBookmarkPage();
         })
       } else {
         ElMessage({
-          message: '请选择!',
+          message: _this.t('tips.select'),
           type: 'error',
         });
       }
@@ -899,7 +905,7 @@ export default {
       const _this = this;
       BookmarkManager.deleteBookmarks([{...data, syncChrome: false}]).then(() => {
         ElMessage({
-          message: '删除成功!',
+          message: _this.t('tips.success'),
           type: 'success',
         });
         _this.reloadBookmarkPage();
@@ -911,14 +917,14 @@ export default {
       if(datas && datas.length > 0){
         BookmarkManager.deleteBookmarks(datas).then(() => {
           ElMessage({
-            message: '删除成功!',
+            message: _this.t('tips.success'),
             type: 'success',
           });
           _this.reloadBookmarkPage();
         })
       }else{
         ElMessage({
-          message: '请选择!',
+          message: _this.t('tips.select'),
           type: 'error',
         });
       }
