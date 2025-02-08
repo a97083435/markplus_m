@@ -549,7 +549,12 @@ import Setting from "./common/userSetting.js";
 import Util from "./common/utils.js";
 import {Delete} from "@element-plus/icons-vue";
 
-const backgroundConn = chrome.runtime.connect({name: "index-background-connection"});
+const backgroundConn = chrome.runtime.connect({ name: "index-background-connection" });
+backgroundConn.onDisconnect.addListener(() => {
+  console.log("联接失效")
+  location.reload();
+});
+
 const InputRef = ref(null);
 export default {
   name: 'App',
