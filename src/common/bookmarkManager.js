@@ -26,6 +26,23 @@ const BookmarkManager = {
             };
         });
     },
+    getById: async function (id){
+        return this.initDatabase().then(() => {
+            return new Promise((resolve, reject) => {
+                const transaction = this.db.transaction([this.storeName], "readonly");
+                const objectStore = transaction.objectStore(this.storeName);
+                let countRequest = objectStore.get(id);
+
+                countRequest.onsuccess = (event) => {
+                    resolve(event.target.result);
+                };
+
+                countRequest.onerror = () => {
+                    reject(countRequest.error);
+                };
+            });
+        });
+    },
     getByUrl: async function (url){
         if(url){
             return this.queryBookmarks({
