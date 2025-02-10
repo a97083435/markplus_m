@@ -239,9 +239,8 @@
               class="context-menu"
               :style="{ left: menuLeft + 'px', top: menuTop + 'px' }"
           >
-            <div class="menu-item" @click="addNode">新增</div>
-            <div class="menu-item" @click="deleteNode">删除</div>
-            <div class="menu-item" @click="editNode">编辑</div>
+            <div class="menu-item" @click="removeBookmark(this.originalBookmark)">删除</div>
+            <div class="menu-item" @click="editBookmark(this.originalBookmark)">编辑</div>
           </div>
         </el-scrollbar>
       </el-aside>
@@ -750,8 +749,10 @@ export default {
     },
     handleRightClick(event, data, node){
       this.showContextMenu = true;
-      this.menuLeft = event.clientX
-      this.menuTop = event.clientY
+      this.menuLeft = event.clientX;
+      this.menuTop = event.clientY;
+      this.bookmark = {...data};
+      this.originalBookmark = {...data}
       document.addEventListener('click', this.closeContextMenu)
     },
     closeContextMenu(){
@@ -947,6 +948,9 @@ export default {
       }
     },
     removeBookmark(data) {
+      if(!data){
+        data = this.originalBookmark;
+      }
       const _this = this;
       BookmarkManager.deleteBookmarks([{...data, syncChrome: false}]).then(() => {
         ElMessage({
