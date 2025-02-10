@@ -294,10 +294,12 @@ async function updateBookMark(datas, tabId) {
                 console.warn("执行脚本时出错:", chrome.runtime.lastError);
             } else {
                 let status = 2;
+                let data = results[0].result;
                 if(datas.length > 1){
                     status = -3;
+                }else if(data?.metaTitle.includes('404')){
+                    status = 404;
                 }
-                let data = results[0].result;
                 // console.log("获取的元数据:", results);
                 for (let i = 0; i < datas.length; i++) {
                     datas[i].metaKeywords = data.metaKeywords;

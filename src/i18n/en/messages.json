@@ -2,6 +2,7 @@
   "statistics": {
     "total": "Total number of bookmarks",
     "undo": "Do not process",
+    "404": "404",
     "error": "Number of abnormal bookmarks",
     "over": "Collection completed, tags summarized",
     "pending": "Pending collection",
@@ -47,6 +48,7 @@
       "0": "Pending collection",
       "1": "Collection",
       "9": "Tags summarized",
+      "404": "404",
       "-1": "Cannot open",
       "-2": "Website URL changed",
       "-3": "Duplicate bookmarks"

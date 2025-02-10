@@ -13,6 +13,16 @@
               </el-button>
             </el-badge>
 
+            <el-badge :max="10000" :offset="[-5,0]" :value="statistics['404']" :title="t('statistics.404')" type="info"
+                      v-if="statistics['404']>0">
+            <el-button  style="padding: 5px;" type="default"
+                        @click="searchStatisticsBookmarks({prop: 'status',operator: 'eq',value: 404})">
+              <el-icon size="20px">
+                <Hide />
+              </el-icon>
+            </el-button>
+            </el-badge>
+
             <el-button  style="padding: 5px;" type="default" :title="t('statistics.undo')"
                        @click="searchStatisticsBookmarks({prop: 'status',operator: 'eq',value: -99})">
               <el-icon size="20px">
@@ -205,6 +215,7 @@
                    default-expand-all
                    node-key="id"
                    @node-drag-end="moveBookMarkDir"
+                   @node-contextmenu="handleRightClick"
                    @node-click="queryByDir">
             <template #default="{ node, data }">
               <div class="bookmark-node">
@@ -223,6 +234,15 @@
               </div>
             </template>
           </el-tree>
+          <div
+              v-show="showContextMenu"
+              class="context-menu"
+              :style="{ left: menuLeft + 'px', top: menuTop + 'px' }"
+          >
+            <div class="menu-item" @click="addNode">新增</div>
+            <div class="menu-item" @click="deleteNode">删除</div>
+            <div class="menu-item" @click="editNode">编辑</div>
+          </div>
         </el-scrollbar>
       </el-aside>
       <el-main style="padding-top: 10px;padding-bottom: 10px">
@@ -324,6 +344,11 @@
                         <template v-else-if="data.status === -3">
                           <el-icon color="#ffc107" :title="t('bookmark.status_show.-3')">
                             <DocumentCopy/>
+                          </el-icon>
+                        </template>
+                        <template v-else-if="data.status === 404">
+                          <el-icon  :title="t('bookmark.status_show.404')">
+                            <Hide />
                           </el-icon>
                         </template>
                       </template>
@@ -597,6 +622,7 @@ export default {
         {key: _this.t('bookmark.status_show.0'), value: 0},
         {key: _this.t('bookmark.status_show.1'), value: 1},
         {key: _this.t('bookmark.status_show.9'), value: 9},
+        {key: _this.t('bookmark.status_show.404'), value: 404},
       ],
       treeData: [{
         id: 0,
@@ -604,6 +630,7 @@ export default {
       }],
       statistics: {
         selectStatus: [],
+        "404": 0,
         total: 0,
         error: 0,
         over: 0,
@@ -640,6 +667,9 @@ export default {
       },
       showBookmarkDailog: false,
       showBookmarkStatusDailog: false,
+      showContextMenu:false,
+      menuLeft:0,
+      menuTop:0,
       inputVisible: false,
       inputValue: '',
       lastQueryParam: {
@@ -717,6 +747,16 @@ export default {
       url.searchParams.set("pageUrl", siteUrl);
       url.searchParams.set("size", "16");
       return url.toString();
+    },
+    handleRightClick(event, data, node){
+      this.showContextMenu = true;
+      this.menuLeft = event.clientX
+      this.menuTop = event.clientY
+      document.addEventListener('click', this.closeContextMenu)
+    },
+    closeContextMenu(){
+      this.showContextMenu = false
+      document.removeEventListener('click', this.closeContextMenu)
     },
     moveBookMarkDir(draggingNode, dropNode, dropType, ev) {
       //共四个参数，依次为：被拖拽节点对应的 Node、结束拖拽时最后进入的节点（可能为空）、被拖拽节点的放置位置（before、after、inner）、event
@@ -1007,6 +1047,7 @@ export default {
         const stat = {
           total: datas.length,
           error: 0,
+          "404": 0,
           same: 0,
           over: 0,
           change: 0,
@@ -1035,6 +1076,7 @@ export default {
             case 9: stat.over++; break;
             case -2: stat.change++; break;
             case -3: stat.same++; break;
+            case 404: stat["404"]++;break;
             case 0:
               if(data.url && data.url.startsWith('http')){
                 // console.log(data);
@@ -1058,6 +1100,31 @@ export default {
 }
 </style>
 <style scoped>
+.context-menu {
+  position: fixed;
+  background: #fff;
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
+  z-index: 9999;
+}
+
+.menu-item {
+  padding: 8px 20px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #606266;
+}
+
+.menu-item:hover {
+  background: #f5f7fa;
+  color: #409eff;
+}
+
+.custom-tree-container {
+  max-width: 500px;
+  margin: 20px;
+}
 .custom-select {
   width: 100px;
   border-right: 1px #DCDFE6FF solid;

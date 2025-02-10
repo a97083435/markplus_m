@@ -17,6 +17,7 @@ const LLM = {
         this.config = null;
         this.insufficientCount = 0;
         this.queue = [];
+        this.init();
     },
     init: async function () {
         if (this.model) {
@@ -121,6 +122,8 @@ const LLM = {
                     let temp = map.get(data.id);
                     data.tags = temp['tags'];
                     if (data.status == -3) {
+                        continue;
+                    }else if (data.status == 404) {
                         continue;
                     } else if (data.tags) {
                         data.status = 9;
