@@ -45,21 +45,21 @@ English | [简体中文](../README.md)
    > ⚠️ The retrieval process temporarily opens tabs. Concurrency can be adjusted in settings.
 
 
-![](docs/images/2.png)
-![](docs/images/2-1.png)
+![](images/2.png)
+![](images/2-1.png)
 
 
 3. **Batch Management**
     - In edit mode, click the statistics in the top left
     - Batch delete bookmarks
-![](docs/images/2-2.png)
+![](images/2-2.png)
 
 ### Configuration
 
 > 💡 Webpage tag summarization requires a Google AI Studio key. Uses model: learnlm-1.5-pro-experimental
 
 
-![](docs/images/3.png)
+![](images/3.png)
 
 
 ## 📝 Changelog
