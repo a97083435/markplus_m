@@ -4,34 +4,39 @@
 
 ![MarkPlus-M Logo](src/assets/icons/icon128.png)
 
-Chrome 书签增强工具 - 让你的书签管理更智能
+智能书签管理工具 - 让你的 Chrome 书签管理更轻松
 
-[//]: # ([English]&#40;./docs/en/README.md&#41; | 简体中文)
+[![Version](https://img.shields.io/badge/version-0.0.3-blue.svg)](https://github.com/your-repo/MarkPlus-M/releases)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
+[English](./docs/README_en.md) | 简体中文
 
 </div>
 
-## 简介
+## ✨ 特性
 
-增强浏览器的书签管理功能。集成Google AI Studio，自动为书签生成标签，帮助用户更好地组织和检索书签。
+- 🤖 **AI 驱动** - 集成 Google AI Studio，自动为书签生成标签
+- 📊 **数据统计** - 直观展示书签使用情况
+- 🔍 **智能搜索** - 多维度快速检索
+- 💾 **本地存储** - 数据安全，完全离线
+- 🛡️ **隐私保护** - 不收集任何个人信息
 
-## 特性
+## 📦 安装
 
-- 🤖 AI 驱动的标签生成
-- 📊 直观的数据统计
-- 🔍 增强搜索功能
-- 💾 本地数据存储
-- 🛡️ 注重隐私保护
+1. 从 [Chrome Web Store](https://chromewebstore.google.com/detail/markplus-m/ggnkeikgmibbjjjfglhbnpjbacnbpgek) 安装
 
-## 使用说明
+
+
+## 🚀 快速开始
 > 书签管理中操作书签会同步操作chrome中书签，最好备份之后再操作
 
-### 基本操作
+### 基本使用
 1. 扩展搜索，搜索框左侧可下拉通过扩展信息搜索
 ![](docs/images/1.png)
 
 2. 编辑模式下，通过chrome.tabs获取网页扩展数据，再次点击停止获取
 
-> 获取数据过程中会不停的打开和关闭标签页，按需配置同时打开标签个数
+> ⚠️ 获取过程会临时打开标签页，可在设置中调整并发数
 
 ![](docs/images/2.png)
 ![](docs/images/2-1.png)
@@ -45,10 +50,18 @@ Chrome 书签增强工具 - 让你的书签管理更智能
 ![](docs/images/3.png)
 
 
-# Changelog
-## 0.0.3
-### 修复
-- 后台挂起导致页面按钮失效
+## 📝 更新日志
+### 0.0.3
+#### ✨ 新功能
+- 新增浏览器语言自动识别功能
+- 新增书签数据导入/导出功能
+- 新增文件夹右键菜单
+  - 支持批量删除
+  - 支持快速编辑
 
-### 新增
-- 增加依据浏览器语言进行默认国际化
+#### 🐛 问题修复
+- 修复后台服务挂起导致页面按钮失效的问题
+
+#### 🔨 优化改进
+- 改进文件夹管理体验
+- 优化数据同步机制
