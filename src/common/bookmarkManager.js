@@ -124,6 +124,48 @@ const BookmarkManager = {
             });
         });
     },
+    uploadBookMarks: async function(bookmarks){
+        let bookmarksDB = await this.queryBookmarks({prop: 'id',
+            operator: 'gt',
+            value: -1
+        });
+        const resultMap = new Map();
+        for (const item of bookmarksDB) {
+            const url = item.url;
+            if (resultMap.has(url)) {
+                resultMap.get(url).push(item);
+            } else {
+                resultMap.set(url, [item]);
+            }
+        }
+        for (const item of bookmarks) {
+            let array = resultMap.get(item.url);
+            if(!array){
+                continue;
+            }
+            let tempArr = [];
+            for (let bookmark of array) {
+                bookmark = {...bookmark,
+                    "domainTitle":item.domainTitle,
+                    "metaTitle":item.metaTitle,
+                    "metaKeywords":item.metaKeywords,
+                    "metaDescription":item.metaDescription,
+                    "metaTags":item.metaTags,
+                    "status":item.status,
+                    "tags":item.tags,
+                };
+                tempArr.push(bookmark);
+            }
+            resultMap.set(item.url,tempArr);
+        }
+        const datas = Array.from(resultMap.values()).flatMap(list => list);
+        for (let data of datas) {
+            if(data.status > 0 && data.type == 'bookmark'){
+                console.log(data.id+"+"+data.title);
+            }
+        }
+        this.saveBookmarks(datas);
+    },
     saveBookmarks: async function (bookmarks) {
         return this.initDatabase().then(() => {
             return new Promise((resolve, reject) => {

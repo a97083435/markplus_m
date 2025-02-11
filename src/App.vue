@@ -91,7 +91,7 @@
           </el-link>
         </template>
       </div>
-      <div style="width: calc(99% - 620px);align-self: center;padding-left: 20px;">
+      <div style="width: calc(99% - 720px);align-self: center;padding-left: 20px;">
         <el-input v-model="searchQuery.value"
                   size="default"
                   style="width: 98%"
@@ -171,20 +171,7 @@
             </template>
           </el-popconfirm>
 
-          <el-popconfirm :title="t('confirm.reloadBookMark')" width="200px"
-                         @confirm="reloadBookMark">
-            <template #reference>
-              <el-button circle size="default" :title="t('btn.reloadBookMark')" type="danger" >
-                <el-icon size="18">
-                  <Connection />
-                </el-icon>
-              </el-button>
-            </template>
-          </el-popconfirm>
-        </template>
-
-        <template v-if="setting.debug">
-          <el-button circle size="default" title="下载书签json" type="info" @click="downLoadBookmarks">
+          <el-button circle size="default"  type="info" @click="downLoadBookmarks">
             <el-icon size="18">
               <Download/>
             </el-icon>
@@ -196,13 +183,25 @@
               :show-file-list="false"
               action="#"
           >
-            <el-button circle size="default" title="上传书签json" type="success">
+            <el-button circle size="default"  type="success">
               <el-icon size="18">
                 <Upload/>
               </el-icon>
             </el-button>
           </el-upload>
+
+          <el-popconfirm :title="t('confirm.reloadBookMark')" width="200px"
+                         @confirm="reloadBookMark">
+            <template #reference>
+              <el-button circle size="default" :title="t('btn.reloadBookMark')" type="danger" >
+                <el-icon size="18">
+                  <RefreshLeft />
+                </el-icon>
+              </el-button>
+            </template>
+          </el-popconfirm>
         </template>
+
       </el-space>
     </el-header>
     <el-container style="height: 90vh">
@@ -303,7 +302,7 @@
                             {{ t('bookmark.dateAddedTime') }}：{{ data.dateAddedTime }}
                           </template>
                           <el-text class="bookmark-text" truncated @dblclick="openUrl(data)">
-                            {{ data.title ? data.title.slice(0, 110) : data.url }}
+                            {{ data.title ? data.title.slice(0, 100) : data.url }}
                           </el-text>
                         </el-tooltip>
                       </template>
@@ -874,12 +873,12 @@ export default {
       reader.onload = (e) => {
         try {
           const bookmarks = JSON.parse(e.target.result);
-          BookmarkManager.saveBookmarks(bookmarks).then(() => {
-            _this.reloadBookmarkPage();
+          BookmarkManager.uploadBookMarks(bookmarks).then(() => {
             ElMessage({
               message: '上传成功!',
               type: 'success',
             });
+            setTimeout(() => _this.reloadBookmarkPage(), 1000);
           })
         } catch (error) {
           console.error('Error parsing JSON: ', error);
@@ -1043,6 +1042,9 @@ export default {
           type: 'error',
         });
       } else if (result.action === Constant.PAGE_EVENT.DOWNLOAD_BOOKMARKS) {
+        for (let i = result.datas.length - 1; i >= 0; i--) {
+          result.datas[i].id = null;
+        }
         let newJsonString = JSON.stringify(result.datas, null, 2);
         // 创建 Blob 对象
         var blob = new Blob([newJsonString], {type: 'application/json'});
