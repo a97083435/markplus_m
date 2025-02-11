@@ -199,47 +199,84 @@ const BookmarkManager = {
         });
     },
     deleteBookmarks: async function (bookmarks) {
+        if (!Array.isArray(bookmarks) || bookmarks.length === 0) {
+            throw new Error('无效的书签数组');
+        }
+
         try {
             await this.initDatabase();
+            const results = {
+                success: [],
+                failed: [],
+                total: 0
+            };
 
             // 批量处理函数
             const processBatch = async (bookmarksBatch) => {
-                const transaction = this.db.transaction([this.storeName], "readwrite");
-                const objectStore = transaction.objectStore(this.storeName);
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction([this.storeName], "readwrite");
+                    const objectStore = transaction.objectStore(this.storeName);
+                    let completed = 0;
 
-                await Promise.all(bookmarksBatch.map(bookmark =>
-                    new Promise((resolve, reject) => {
-                        const request = objectStore.delete(bookmark.id);
+                    // 设置事务完成和错误处理
+                    transaction.oncomplete = () => {
+                        resolve();
+                    };
 
-                        request.onsuccess = async () => {
-                            try {
-                                if (bookmark.type === "bookmark") {
-                                    await chrome.bookmarks.remove(bookmark.id);
-                                } else {
-                                    await chrome.bookmarks.removeTree(bookmark.id);
+                    transaction.onerror = (event) => {
+                        reject(event.target.error);
+                    };
+
+                    // 处理每个书签
+                    bookmarksBatch.forEach(async (bookmark) => {
+                        try {
+                            // 然后删除 IndexedDB 数据
+                            const request = objectStore.delete(bookmark.id);
+                            request.onsuccess = () => {
+                                results.success.push(bookmark.id);
+                                completed++;
+
+                                if (completed === bookmarksBatch.length) {
+                                    // 所有操作完成
+                                    resolve();
                                 }
-                            } catch (chromeError) {
-                                console.warn(`Chrome 书签删除失败 (ID: ${bookmark.id}):`, chromeError);
+                            };
+                            request.onerror = (event) => {
+                                results.failed.push({
+                                    id: bookmark.id,
+                                    error: event.target.error.message
+                                });
+                                completed++;
+
+                                if (completed === bookmarksBatch.length) {
+                                    resolve();
+                                }
+                            };
+
+                            // 先删除 Chrome 书签
+                            if (bookmark.type === "bookmark") {
+                                await chrome.bookmarks.remove(bookmark.id);
+                            } else {
+                                await chrome.bookmarks.removeTree(bookmark.id);
                             }
-                            resolve();
-                        };
+                        } catch (error) {
+                            results.failed.push({
+                                id: bookmark.id,
+                                error: error.message
+                            });
+                            completed++;
 
-                        request.onerror = (event) => {
-                            console.error(`本地存储删除失败 (ID: ${bookmark.id}):`, event);
-                            reject(event);
-                        };
-                    })
-                ));
-
-                // 等待事务完成
-                await new Promise((resolve, reject) => {
-                    transaction.oncomplete = resolve;
-                    transaction.onerror = reject;
+                            if (completed === bookmarksBatch.length) {
+                                resolve();
+                            }
+                        }
+                    });
                 });
             };
 
             // 递归处理文件夹结构
             const processBookmarkRecursively = async (bookmark) => {
+                const result = [bookmark];
                 if (bookmark.type !== "bookmark") {
                     const childBookmarks = await this.queryBookmarks({
                         prop: 'parentId',
@@ -247,32 +284,46 @@ const BookmarkManager = {
                         value: bookmark.id
                     });
 
-                    // 递归处理所有子项
                     for (const child of childBookmarks) {
-                        await processBookmarkRecursively(child);
+                        const childResults = await processBookmarkRecursively(child);
+                        result.push(...childResults);
                     }
                 }
-                return bookmark;
+                return result;
             };
 
-            // 先递归收集所有需要删除的书签
+            // 收集所有需要删除的书签
             const allBookmarksToDelete = [];
             for (const bookmark of bookmarks) {
                 const processed = await processBookmarkRecursively(bookmark);
-                allBookmarksToDelete.push(processed);
+                allBookmarksToDelete.push(...processed);
             }
 
+            // 去重
+            const uniqueBookmarks = [...new Map(
+                allBookmarksToDelete.map(item => [item.id, item])
+            ).values()];
+
+            results.total = uniqueBookmarks.length;
+
             // 分批处理删除操作
-            const BATCH_SIZE = 50; // 可以根据实际情况调整批次大小
-            for (let i = 0; i < allBookmarksToDelete.length; i += BATCH_SIZE) {
-                const batch = allBookmarksToDelete.slice(i, i + BATCH_SIZE);
+            const BATCH_SIZE = 50;
+            for (let i = 0; i < uniqueBookmarks.length; i += BATCH_SIZE) {
+                const batch = uniqueBookmarks.slice(i, i + BATCH_SIZE);
                 await processBatch(batch);
             }
 
-            console.log('所有书签删除操作完成');
+            // 返回删除结果
+            return {
+                success: results.success.length,
+                failed: results.failed,
+                total: results.total,
+                message: `删除完成: 成功 ${results.success.length}/${results.total}`
+            };
 
         } catch (error) {
             console.error('书签删除过程中发生错误:', error);
+            throw error;
         }
     },
     queryBookmarks: function (queryDto) {

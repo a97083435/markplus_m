@@ -18,7 +18,9 @@ const i18n = createI18n({
     fallbackLocale: 'en', // 默认回退语言
     messages:{
         en,zh
-    }
+    },
+    fallbackWarn:false,
+    missingWarn: false
 });
 app.use(i18n);
 

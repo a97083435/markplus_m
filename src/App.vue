@@ -239,8 +239,8 @@
               class="context-menu"
               :style="{ left: menuLeft + 'px', top: menuTop + 'px' }"
           >
-            <div class="menu-item" @click="removeBookmark(this.originalBookmark)">删除</div>
-            <div class="menu-item" @click="editBookmark(this.originalBookmark)">编辑</div>
+            <div class="menu-item" @click="removeBookmark(null)">{{ t('btn.del') }}</div>
+            <div class="menu-item" @click="editBookmark(null)">{{ t('btn.edit') }}</div>
           </div>
         </el-scrollbar>
       </el-aside>
@@ -734,8 +734,10 @@ export default {
       })
     },
     editBookmark(data) {
-      this.bookmark = {...data};
-      this.originalBookmark = {...data}
+      if(data){
+        this.bookmark = {...data};
+        this.originalBookmark = {...data}
+      }
       this.showBookmarkDailog = true;
     },
     closeBookmarkDialog() {
@@ -948,10 +950,17 @@ export default {
       }
     },
     removeBookmark(data) {
+      const _this = this;
       if(!data){
         data = this.originalBookmark;
       }
-      const _this = this;
+      if(data.childrenCount && data.childrenCount > 0){
+        ElMessage({
+          message: _this.t('tips.cub'),
+          type: 'warning',
+        });
+        return;
+      }
       BookmarkManager.deleteBookmarks([{...data, syncChrome: false}]).then(() => {
         ElMessage({
           message: _this.t('tips.success'),

@@ -77,6 +77,7 @@
   },
   "tips": {
     "modifyUserSuccess": "User configuration modified successfully!",
+    "cub": "The directory contains undeleted bookmarks, please clear them before deletion!",
     "success": "Operation successful!",
     "modifyUserFirst": "Please configure user parameters first!",
     "select": "Please select!"
