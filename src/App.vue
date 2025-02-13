@@ -571,13 +571,7 @@ import {nextTick, ref,toRaw} from 'vue';
 import Setting from "./common/userSetting.js";
 import Util from "./common/utils.js";
 import {Delete} from "@element-plus/icons-vue";
-
-const backgroundConn = chrome.runtime.connect({ name: "index-background-connection" });
-backgroundConn.onDisconnect.addListener(() => {
-  console.log("联接失效")
-  location.reload();
-});
-
+let backgroundConn = null
 const InputRef = ref(null);
 export default {
   name: 'App',
@@ -681,6 +675,113 @@ export default {
     };
   },
   methods: {
+    initConnect(){
+      let _this = this;
+      backgroundConn = chrome.runtime.connect({ name: "index-background-connection" });
+      backgroundConn.onDisconnect.addListener(() => {
+        console.log("联接失效")
+        _this.initConnect();
+      });
+      backgroundConn.onMessage.addListener(async function (result) {
+        // 使用 `_this` 代替 `this`
+        if (result.action === Constant.PAGE_EVENT.QUERY_FOLDER) {
+          _this.treeData = result.datas;
+        } else if (result.action === Constant.PAGE_EVENT.QUERY_BOOKMARKS) {
+          _this.bookmarks = result.datas;
+          if (_this.setting.editModel) {
+            var selectIds = [];
+            if (_this.statistics.selectStatus.includes(-3)) {
+              let map = {};
+              for (let bm of _this.bookmarks) {
+                let url =  bm.url?bm.url.replace(/(http|https):\/\//g, ''):"";
+                if (map[url]) {
+                  selectIds.push(bm.id);
+                } else {
+                  map[url] = bm.id;
+                }
+              }
+            }else if(_this.statistics.selectStatus.includes(-1)){
+              selectIds = _this.bookmarks.map(data => data.id);
+            }
+            setTimeout(() => {
+              if(selectIds){
+                _this.$refs.bookmarkList.setCheckedKeys(selectIds);
+              }
+            }, 50)
+
+          }
+          _this.statistics.show = result.datas.length;
+        } else if (result.action === Constant.PAGE_EVENT.ALERT_MSG) {
+          ElMessage({
+            message: result.msg,
+            type: 'error',
+          });
+        } else if (result.action === Constant.PAGE_EVENT.DOWNLOAD_BOOKMARKS) {
+          for (let i = result.datas.length - 1; i >= 0; i--) {
+            result.datas[i].id = null;
+          }
+          let newJsonString = JSON.stringify(result.datas, null, 2);
+          // 创建 Blob 对象
+          var blob = new Blob([newJsonString], {type: 'application/json'});
+          // 创建下载链接
+          var a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = 'data.json';
+          a.click();
+        } else if (result.action === Constant.PAGE_EVENT.SAVE_TO_D1) {
+          LLM.summarizeTags(JSON.stringify(result.datas[0]));
+        }  else if (result.action === Constant.PAGE_EVENT.RELOAD_PAGE) {
+          _this.reloadBookmarkPage();
+        } else if (result.action === Constant.PAGE_EVENT.STATISTICS_TOTAL) {
+          const { datas } = result;
+          const stat = {
+            total: datas.length,
+            error: 0,
+            "404": 0,
+            same: 0,
+            over: 0,
+            change: 0,
+            pending: 0
+          };
+          let treeData = [];
+          let map =  datas.reduce((acc, data) => {
+            acc[data.id] = data;
+            if (data.type === 'folder') {
+              data.childrenCount = 0;
+              treeData.push(data);
+            }
+            return acc;
+          }, {});
+          for (const data of datas) {
+            map[data.id] = data;
+            if (map[data.parentId] != null) {
+              map[data.parentId].childrenCount += 1;
+            }
+            if (data.type === 'folder'){
+              continue;
+            }
+            switch (data.status) {
+              case -1: stat.error++; break;
+              case 2:
+              case 9: stat.over++; break;
+              case -2: stat.change++; break;
+              case -3: stat.same++; break;
+              case 404: stat["404"]++;break;
+              case 0:
+                if(data.url && data.url.startsWith('http')){
+                  // console.log(data);
+                  stat.pending++;
+                }
+                break;
+            }
+          }
+          _this.statistics = { ..._this.statistics, ...stat }
+          _this.treeData = Util.getRootTree(treeData);
+        }
+      });
+
+
+    },
     handleClose(tag) {
       this.bookmark.tags.splice(this.bookmark.tags.indexOf(tag), 1)
     },
@@ -809,6 +910,7 @@ export default {
       });
     },
     reloadBookMark(){
+      const _this = this;
       backgroundConn.postMessage({
         action: Constant.PAGE_EVENT.RELOAD_BOOKMARK
       });
@@ -993,6 +1095,7 @@ export default {
   },
   mounted() {
     const _this = this;
+    _this.initConnect();
     Setting.getSysConfig().then(config => {
       _this.userSetting = config;
       console.log("读取配置完成")
@@ -1007,104 +1110,6 @@ export default {
       }
       _this.setting.crawlStatus = config;
     })
-    backgroundConn.onMessage.addListener(async function (result) {
-      // 使用 `_this` 代替 `this`
-      if (result.action === Constant.PAGE_EVENT.QUERY_FOLDER) {
-        _this.treeData = result.datas;
-      } else if (result.action === Constant.PAGE_EVENT.QUERY_BOOKMARKS) {
-        _this.bookmarks = result.datas;
-        if (_this.setting.editModel) {
-          var selectIds = [];
-          if (_this.statistics.selectStatus.includes(-3)) {
-            let map = {};
-            for (let bm of _this.bookmarks) {
-              let url =  bm.url?bm.url.replace(/(http|https):\/\//g, ''):"";
-              if (map[url]) {
-                selectIds.push(bm.id);
-              } else {
-                map[url] = bm.id;
-              }
-            }
-          }else if(_this.statistics.selectStatus.includes(-1)){
-            selectIds = _this.bookmarks.map(data => data.id);
-          }
-          setTimeout(() => {
-            if(selectIds){
-              _this.$refs.bookmarkList.setCheckedKeys(selectIds);
-            }
-          }, 50)
-
-        }
-        _this.statistics.show = result.datas.length;
-      } else if (result.action === Constant.PAGE_EVENT.ALERT_MSG) {
-        ElMessage({
-          message: result.msg,
-          type: 'error',
-        });
-      } else if (result.action === Constant.PAGE_EVENT.DOWNLOAD_BOOKMARKS) {
-        for (let i = result.datas.length - 1; i >= 0; i--) {
-          result.datas[i].id = null;
-        }
-        let newJsonString = JSON.stringify(result.datas, null, 2);
-        // 创建 Blob 对象
-        var blob = new Blob([newJsonString], {type: 'application/json'});
-        // 创建下载链接
-        var a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'data.json';
-        a.click();
-      } else if (result.action === Constant.PAGE_EVENT.SAVE_TO_D1) {
-        LLM.summarizeTags(JSON.stringify(result.datas[0]));
-      }  else if (result.action === Constant.PAGE_EVENT.RELOAD_PAGE) {
-        _this.reloadBookmarkPage();
-      } else if (result.action === Constant.PAGE_EVENT.STATISTICS_TOTAL) {
-        const { datas } = result;
-        const stat = {
-          total: datas.length,
-          error: 0,
-          "404": 0,
-          same: 0,
-          over: 0,
-          change: 0,
-          pending: 0
-        };
-        let treeData = [];
-        let map =  datas.reduce((acc, data) => {
-          acc[data.id] = data;
-          if (data.type === 'folder') {
-            data.childrenCount = 0;
-            treeData.push(data);
-          }
-          return acc;
-        }, {});
-        for (const data of datas) {
-          map[data.id] = data;
-          if (map[data.parentId] != null) {
-            map[data.parentId].childrenCount += 1;
-          }
-          if (data.type === 'folder'){
-            continue;
-          }
-          switch (data.status) {
-            case -1: stat.error++; break;
-            case 2:
-            case 9: stat.over++; break;
-            case -2: stat.change++; break;
-            case -3: stat.same++; break;
-            case 404: stat["404"]++;break;
-            case 0:
-              if(data.url && data.url.startsWith('http')){
-                // console.log(data);
-                stat.pending++;
-              }
-              break;
-          }
-        }
-        _this.statistics = { ..._this.statistics, ...stat }
-        _this.treeData = Util.getRootTree(treeData);
-      }
-    });
-
     _this.reloadBookmarkPage();
   }
 };
