@@ -212,6 +212,7 @@
           <el-tree :data="treeData"
                    :expand-on-click-node="false"
                    default-expand-all
+                   :draggable = "false"
                    node-key="id"
                    @node-drag-end="moveBookMarkDir"
                    @node-contextmenu="handleRightClick"
@@ -351,7 +352,7 @@
                         </template>
                       </template>
                     </el-col>
-                    <el-col :span="3">
+                    <el-col :span="3" style="display: flex; justify-content: flex-end;padding-right: 13px">
                       <template v-if="setting.editModel">
                         <el-popconfirm :title="t('confirm.delete')" width="300px"
                                        @confirm="removeBookmark(data)">
@@ -609,7 +610,7 @@ export default {
       bookmarkStatus: [
         {key: _this.t('bookmark.status_show.-99'), value: -99},
         {key: _this.t('bookmark.status_show.-3'), value: -3},
-        {key: _this.t('bookmark.status_show.-2'), value: -2},
+        {key: _this.t('bookmark.status_show.2'), value: 2},
         {key: _this.t('bookmark.status_show.-1'), value: -1},
         {key: _this.t('bookmark.status_show.0'), value: 0},
         {key: _this.t('bookmark.status_show.1'), value: 1},
@@ -865,40 +866,41 @@ export default {
       //共四个参数，依次为：被拖拽节点对应的 Node、结束拖拽时最后进入的节点（可能为空）、被拖拽节点的放置位置（before、after、inner）、event
       //dropNode.parent.data  父节点
       //dropNode.data  当前节点
-      let bookmarks = [];
-      let result = [];
-      let bookmark = draggingNode.data;
-      bookmark.syncChrome = false;
-      bookmark.move = true;
-      if (dropType == 'inner') {
-        bookmark.parentId = dropNode.data.id;
-        bookmark.index = 0;
-        bookmarks = dropNode.data.children;
-      } else if (dropType == 'before') {
-        bookmark.parentId = dropNode.data.parentId;
-        bookmark.index = dropNode.data.index - 1;
-        bookmarks = dropNode.parent.data.children;
-      } else if (dropType == 'after') {
-        bookmark.parentId = dropNode.data.parentId;
-        bookmark.index = dropNode.data.index + 1;
-      }
-      if (bookmark.index < 0) {
-        bookmark.index = 0;
-
-        for (let i = 0; i < bookmarks.length; i++) {
-          if (bookmarks[i].type == "folder") {
-            bookmarks[i].index = bookmarks[i].index + 1;
-            bookmarks[i].syncChrome = false;
-            bookmarks[i].move = true;
-            result.push(bookmarks[i]);
-          }
-        }
-      }
-      result.push(bookmark);
-      BookmarkManager.saveBookmarks(result);
+      // let bookmarks = [];
+      // let result = [];
+      // let bookmark = draggingNode.data;
+      // bookmark.syncChrome = false;
+      // bookmark.move = true;
+      // if (dropType == 'inner') {
+      //   bookmark.parentId = dropNode.data.id;
+      //   bookmark.index = 0;
+      //   bookmarks = dropNode.data.children;
+      // } else if (dropType == 'before') {
+      //   bookmark.parentId = dropNode.data.parentId;
+      //   bookmark.index = dropNode.data.index - 1;
+      //   bookmarks = dropNode.parent.data.children;
+      // } else if (dropType == 'after') {
+      //   bookmark.parentId = dropNode.data.parentId;
+      //   bookmark.index = dropNode.data.index + 1;
+      // }
+      // if (bookmark.index < 0) {
+      //   bookmark.index = 0;
+      //
+      //   for (let i = 0; i < bookmarks.length; i++) {
+      //     if (bookmarks[i].type == "folder") {
+      //       bookmarks[i].index = bookmarks[i].index + 1;
+      //       bookmarks[i].syncChrome = false;
+      //       bookmarks[i].move = true;
+      //       result.push(bookmarks[i]);
+      //     }
+      //   }
+      // }
+      // result.push(bookmark);
+      // BookmarkManager.saveBookmarks(result);
     },
     queryByDir(data) {
       let _this = this;
+      _this.showContextMenu = false;
       _this.lastQueryParam = {
         prop: 'parentId',
         operator: 'eq',

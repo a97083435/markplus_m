@@ -1,10 +1,15 @@
-# MarkPlus-M 文档
+# MarkPlus-M
 
 <div align="center">
 
 ![MarkPlus-M Logo](src/assets/icons/icon128.png)
 
-智能书签管理工具 - 让你的 Chrome 书签管理更轻松
+浏览器书签管理增强
+1. 通过tab页爬取已存储书签检查书签状态并获取网页 meta 信息
+2. 通过AI Studio自动解析网页标签
+3. 基于扩展信息进行搜索
+4. 批量维护书签
+
 
 [![Version](https://img.shields.io/badge/version-0.0.3-blue.svg)](https://github.com/your-repo/MarkPlus-M/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
