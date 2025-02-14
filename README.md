@@ -3,13 +3,7 @@
 <div align="center">
 
 ![MarkPlus-M Logo](src/assets/icons/icon128.png)
-
-浏览器书签管理增强
-1. 通过tab页爬取已存储书签检查书签状态并获取网页 meta 信息
-2. 通过AI Studio自动解析网页标签
-3. 基于扩展信息进行搜索
-4. 批量维护书签
-
+Chrome 书签管理增强插件 - 让你的书签管理更智能
 
 [![Version](https://img.shields.io/badge/version-0.0.3-blue.svg)](https://github.com/your-repo/MarkPlus-M/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -17,7 +11,11 @@
 [English](./docs/README_en.md) | 简体中文
 
 </div>
-
+## 🚀  功能
+-  通过tab页爬取已存储书签检查书签状态并获取网页 meta 信息
+-  通过AI Studio自动解析网页标签
+-  基于扩展信息进行搜索
+-  批量维护书签
 ## ✨ 特性
 
 - 🤖 **AI 驱动** - 集成 Google AI Studio，自动为书签生成标签
