@@ -3,6 +3,7 @@
 <div align="center">
 
 ![MarkPlus-M Logo](src/assets/icons/icon128.png)
+
 Chrome 书签管理增强插件 - 让你的书签管理更智能
 
 [![Version](https://img.shields.io/badge/version-0.0.3-blue.svg)](https://github.com/your-repo/MarkPlus-M/releases)
