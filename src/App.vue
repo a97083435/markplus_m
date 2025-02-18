@@ -611,6 +611,7 @@ export default {
         {key: _this.t('bookmark.status_show.-99'), value: -99},
         {key: _this.t('bookmark.status_show.-3'), value: -3},
         {key: _this.t('bookmark.status_show.2'), value: 2},
+        {key: _this.t('bookmark.status_show.-2'), value: -2},
         {key: _this.t('bookmark.status_show.-1'), value: -1},
         {key: _this.t('bookmark.status_show.0'), value: 0},
         {key: _this.t('bookmark.status_show.1'), value: 1},

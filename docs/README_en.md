@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![MarkPlus-M Logo](src/assets/icons/icon128.png)
+![MarkPlus-M Logo](../src/assets/icons/icon128.png)
 
 Smart Bookmark Manager - Making Chrome Bookmark Management Easier
 
@@ -13,8 +13,14 @@ Smart Bookmark Manager - Making Chrome Bookmark Management Easier
 English | [简体中文](../README.md)
 
 </div>
+## 🚀 Functional Features
 
-## ✨ Features
+- Crawl stored bookmarks through tab pages to check bookmark status and retrieve webpage meta information
+- Automatically parse webpage tags using AI Studio
+- Search based on extended bookmark information
+- Batch maintain bookmarks
+
+## ✨ Characteristics/Attributes
 
 - 🤖 **AI-Powered** - Integrated with Google AI Studio for automatic tag generation
 - 📊 **Data Analytics** - Visualize bookmark usage patterns
