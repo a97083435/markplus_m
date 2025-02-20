@@ -379,6 +379,8 @@ const BookmarkManager = {
                 const request = objectStore.openCursor();
                 const results = [];
                 let count = 0;
+                const regex = new RegExp(value, "i");
+
                 request.onsuccess = event => {
                     const cursor = event.target.result;
                     if (limit != -1 && count >= limit) {
@@ -387,14 +389,14 @@ const BookmarkManager = {
                         if (operator === "like" && prop ==="all") {
                             const props = ["title","url","tags","treeName","metaTitle","metaKeywords","metaDescription","metaTags"];
                             for (let pro of props) {
-                                if (pro == "tags" && cursor.value[pro] && cursor.value[pro].join(',').indexOf(value)>-1) {
+                                if (pro == "tags" && cursor.value[pro] && regex.test(cursor.value[pro].join(','))) {
                                     results.push(cursor.value);
-                                }else if (cursor.value[pro] && cursor.value[pro].indexOf(value)>-1 ) {
+                                }else if (cursor.value[pro] && regex.test(cursor.value[pro]) ) {
                                     results.push(cursor.value);
                                 }
                             }
                         }else if (operator === "like") {
-                            if (cursor.value[prop] && cursor.value[prop].indexOf(value)>-1 ) {
+                            if (cursor.value[prop] && regex.test(cursor.value[pro]) ) {
                                 results.push(cursor.value);
                             }
                         } else if (prop == 'status' && cursor.value.type == 'folder') {
