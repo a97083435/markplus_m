@@ -101,7 +101,7 @@ const BookmarkManager = {
                     domain: bookmark.url ? new URL(bookmark.url).hostname : null,
                     tags:[],
                     syncChrome: true,
-                    type: bookmark.url ? "folder" : "bookmark",
+                    type: bookmark.url ? "bookmark" : "folder",
                     status: 0,
                     dateAddedTime: new Date(bookmark.dateAdded).toLocaleString(),
                     dateGroupModifiedTime: new Date(bookmark.dateAdded).toLocaleString()
@@ -368,7 +368,12 @@ const BookmarkManager = {
             throw error;
         }
     },
+    highlightSearch: function(data,pro,value,regex){
+        let str = value.replace(regex,(match) => `<span style="color: #f56c6c">${match}</span>`);
+        data[pro] = str;
+    },
     queryBookmarks: function (queryDto) {
+        let _this = this;
         return this.initDatabase().then(() => {
             return new Promise((resolve, reject) => {
                 const {prop, operator, value, limit = -1} = queryDto;
@@ -386,18 +391,22 @@ const BookmarkManager = {
                     if (limit != -1 && count >= limit) {
                         resolve(results);
                     } else if (cursor) {
+                        let searchResult = cursor.value;
                         if (operator === "like" && prop ==="all") {
                             const props = ["title","url","tags","treeName","metaTitle","metaKeywords","metaDescription","metaTags"];
                             for (let pro of props) {
                                 if (pro == "tags" && cursor.value[pro] && regex.test(cursor.value[pro].join(','))) {
-                                    results.push(cursor.value);
+                                    _this.highlightSearch(searchResult,pro,cursor.value[pro].join(','),regex);
+                                    results.push(searchResult);
                                 }else if (cursor.value[pro] && regex.test(cursor.value[pro]) ) {
-                                    results.push(cursor.value);
+                                    _this.highlightSearch(searchResult,pro,cursor.value[pro],regex);
+                                    results.push(searchResult);
                                 }
                             }
                         }else if (operator === "like") {
                             if (cursor.value[prop] && regex.test(cursor.value[pro]) ) {
-                                results.push(cursor.value);
+                                _this.highlightSearch(searchResult,pro,cursor.value[pro],regex);
+                                results.push(searchResult);
                             }
                         } else if (prop == 'status' && cursor.value.type == 'folder') {
                         } else if (prop == 'url') {

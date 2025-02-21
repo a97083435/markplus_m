@@ -122,7 +122,6 @@
         </el-input>
       </div>
       <el-space style="width: 120px;" size="small">
-
         <el-switch v-model="setting.editModel" @change="handleEditModelChange">
           <template #active-action>
             <span>E</span>
@@ -133,28 +132,28 @@
         </el-switch>
 
         <template v-if="setting.editModel">
-          <el-button circle size="default" :title="t('btn.crawlMeta')" type="success" @click="crawlMeta"
+          <el-button circle size="default" :title="t('btn.crawlMeta')"  @click="crawlMeta"
                      v-if="setting.crawlStatus == '0'">
             <el-icon size="18">
               <Promotion/>
             </el-icon>
           </el-button>
 
-          <el-button circle size="default" :title="t('btn.stopCrawlMeta')" type="danger" @click="stopCrawlMeta"
+          <el-button circle size="default" :title="t('btn.stopCrawlMeta')"  @click="stopCrawlMeta"
                      v-else-if="setting.crawlStatus == '1'">
             <el-icon size="18">
               <SwitchButton/>
             </el-icon>
           </el-button>
 
-          <el-button circle size="default" :title="t('btn.userConfig')" type="warning" @click="setting.showUserConfig=true">
+          <el-button circle size="default" :title="t('btn.userConfig')"  @click="setting.showUserConfig=true">
             <el-icon size="18">
               <Setting/>
             </el-icon>
           </el-button>
 
 
-          <el-button circle size="default" :title="t('btn.showBookmarkStatus')" type="primary" @click="showBookmarkStatus">
+          <el-button circle size="default" :title="t('btn.showBookmarkStatus')"  @click="showBookmarkStatus">
             <el-icon size="18">
               <Edit/>
             </el-icon>
@@ -163,7 +162,7 @@
           <el-popconfirm :title="t('confirm.deleteAll')"  width="200px"
                          @confirm="removeAllCheck">
             <template #reference>
-              <el-button circle size="default" :title="t('btn.delSelect')" type="danger" >
+              <el-button circle size="default" :title="t('btn.delSelect')"  >
                 <el-icon size="18">
                   <Delete/>
                 </el-icon>
@@ -171,7 +170,7 @@
             </template>
           </el-popconfirm>
 
-          <el-button circle size="default"  type="info" @click="downLoadBookmarks">
+          <el-button circle size="default"   @click="downLoadBookmarks">
             <el-icon size="18">
               <Download/>
             </el-icon>
@@ -183,7 +182,7 @@
               :show-file-list="false"
               action="#"
           >
-            <el-button circle size="default"  type="success">
+            <el-button circle size="default"  >
               <el-icon size="18">
                 <Upload/>
               </el-icon>
@@ -193,7 +192,7 @@
           <el-popconfirm :title="t('confirm.reloadBookMark')" width="200px"
                          @confirm="reloadBookMark">
             <template #reference>
-              <el-button circle size="default" :title="t('btn.reloadBookMark')" type="danger" >
+              <el-button circle size="default" :title="t('btn.reloadBookMark')"  >
                 <el-icon size="18">
                   <RefreshLeft />
                 </el-icon>
@@ -212,6 +211,7 @@
           <el-tree :data="treeData"
                    :expand-on-click-node="false"
                    default-expand-all
+                   :highlight-current="true"
                    :draggable = "false"
                    node-key="id"
                    @node-drag-end="moveBookMarkDir"
@@ -249,16 +249,16 @@
           <template #default="{ height, width }">
             <el-scrollbar style="border-radius: 4px;box-shadow: 0 2px 12px 0 #909399">
               <el-tree-v2 :data="bookmarks"
+                          id="bookmarkList"
+                          :highlight-current="false"
                           ref="bookmarkList"
-                          :highlight-current="true"
                           :show-checkbox="setting.editModel"
-                          :expand-on-click-node="false"
+                          :item-size="30"
                           :height="height-10"
-                          default-expand-all
                           node-key="id">
                 <template #default="{ node, data }">
-                  <el-row style="width: 99%">
-                    <el-col :span="18">
+                  <el-row style="width: 99%" @mouseover="handleMouseOver(data)" >
+                    <el-col :span="21" >
                       <template v-if="data.type === 'folder'">
                         <el-icon style="margin-right: 20px;">
                           <Folder/>
@@ -266,19 +266,23 @@
                         <el-tooltip
                             :raw-content="true"
                             placement="top"
+                            effect="light"
                             trigger="click"
                         >
                           <template #content>
-                            <template v-if="setting.debug">
-                            id：{{ data.id }}<br/>
-                            </template>
-                            {{ t('bookmark.title') }}：{{ data.title }}<br/>
-                            {{ t('bookmark.treeName') }}：{{ data.treeName }}<br/>
-                            {{ t('bookmark.dateAddedTime') }}：{{ data.dateAddedTime }}
+                            <el-descriptions
+                                direction="horizontal"
+                                :column="1"
+                                size="small"
+                                border
+                            >
+                              <el-descriptions-item v-if="setting.debug" label="id"><span v-html="data.id"></span></el-descriptions-item>
+                              <el-descriptions-item :label="t('bookmark.treeName')"><span v-html="data.treeName"></span></el-descriptions-item>
+                              <el-descriptions-item v-if="data.title" :label="t('bookmark.title')"><span v-html="data.title" class="bookmark_tips"></span></el-descriptions-item>
+                              <el-descriptions-item v-if="data.dateAddedTime" :label="t('bookmark.dateAddedTime')"><span v-html="data.dateAddedTime"></span></el-descriptions-item>
+                            </el-descriptions>
                           </template>
-                          <el-text class="dir-text" @dblclick="queryByDir(data)">
-                            {{ data.title }}
-                          </el-text>
+                          <el-text class="dir-text" @dblclick="queryByDir(data)" v-html="data.title"/>
                         </el-tooltip>
                       </template>
                       <template v-else>
@@ -286,29 +290,33 @@
                         <el-tooltip
                             :raw-content="true"
                             placement="top"
+                            effect="light"
                             trigger="click"
                         >
                           <template #content>
-                            <template v-if="setting.debug">
-                              id：{{ data.id }}<br/>
-                              status：{{ data.status }}<br/>
-                            </template>
-                            {{ t('bookmark.treeName') }}：{{ data.treeName }}<br/>
-                            {{ t('bookmark.title') }}：{{ data.title }}<br/>
-                            {{ t('bookmark.url') }}：{{ data.url }}<br/>
-                            {{ t('bookmark.currentUrl') }}：{{ data.currentUrl }}<br/>
-                            {{ t('bookmark.metaTitle') }}：{{ data.metaTitle }}<br/>
-                            {{ t('bookmark.metaDescription') }}：{{ data.metaDescription }}<br/>
-                            {{ t('bookmark.tags') }}：{{ data.tags }}<br/>
-                            {{ t('bookmark.dateAddedTime') }}：{{ data.dateAddedTime }}
+                            <el-descriptions
+                                direction="horizontal"
+                                :column="1"
+                                size="small"
+                                border
+                            >
+                              <el-descriptions-item v-if="setting.debug" label="id"><span v-html="data.id"></span></el-descriptions-item>
+                              <el-descriptions-item v-if="setting.debug" label="status"><span v-html="data.status"></span></el-descriptions-item>
+                              <el-descriptions-item :label="t('bookmark.treeName')"><span v-html="data.treeName"></span></el-descriptions-item>
+                              <el-descriptions-item v-if="data.title" :label="t('bookmark.title')"><span v-html="data.title" class="bookmark_tips"></span></el-descriptions-item>
+                              <el-descriptions-item v-if="data.url" :label="t('bookmark.url')"><span v-html="data.url" class="bookmark_tips"></span></el-descriptions-item>
+                              <el-descriptions-item v-if="data.currentUrl" :label="t('bookmark.currentUrl')"><span v-html="data.currentUrl" class="bookmark_tips"></span></el-descriptions-item>
+                              <el-descriptions-item v-if="data.metaTitle" :label="t('bookmark.metaTitle')"><span v-html="data.metaTitle" class="bookmark_tips"></span></el-descriptions-item>
+                              <el-descriptions-item v-if="data.metaDescription" :label="t('bookmark.metaDescription')" ><span v-html="data.metaDescription" class="bookmark_tips"></span></el-descriptions-item>
+                              <el-descriptions-item v-if="data.tags" :label="t('bookmark.tags')"><span v-html="data.tags" class="bookmark_tips"></span></el-descriptions-item>
+                              <el-descriptions-item v-if="data.dateAddedTime" :label="t('bookmark.dateAddedTime')"><span v-html="data.dateAddedTime"></span></el-descriptions-item>
+                            </el-descriptions>
                           </template>
-                          <el-text class="bookmark-text" truncated @dblclick="openUrl(data)">
-                            {{ data.title ? data.title.slice(0, 100) : data.url }}
-                          </el-text>
+                          <el-text class="bookmark-text" truncated @dblclick="openUrl(data)" v-html="data.title ? data.title.slice(0, 100) : data.url"/>
                         </el-tooltip>
                       </template>
                     </el-col>
-                    <el-col :span="3">
+                    <el-col :span="1" style="display: flex; justify-content: flex-end;padding-right: 13px">
                       <template v-if="data.type === 'bookmark'">
                         <template v-if="data.status === 2">
                           <el-icon color="#409efc" :title="t('bookmark.status_show.2')">
@@ -352,8 +360,8 @@
                         </template>
                       </template>
                     </el-col>
-                    <el-col :span="3" style="display: flex; justify-content: flex-end;padding-right: 13px">
-                      <template v-if="setting.editModel">
+                    <el-col :span="2" style="display: flex; justify-content: flex-end;padding-right: 13px">
+                      <template v-if="setting.editModel && hoveredNode === data.id">
                         <el-popconfirm :title="t('confirm.delete')" width="300px"
                                        @confirm="removeBookmark(data)">
                           <template #reference>
@@ -673,10 +681,29 @@ export default {
       },
       bookmark: {},
       originalBookmark: {},
-      changeBookmarkStatus: {}
+      changeBookmarkStatus: {},
+      hoveredNode:null
     };
   },
   methods: {
+    handleMouseOver(data) {
+      console.log("handleMouseOver");
+      // 鼠标悬浮时，记录当前节点的 ID
+      this.hoveredNode = data.id;
+    },
+    handleMouseLeave() {
+      console.log("handleMouseLeave");
+      // 鼠标离开时，清空悬浮状态
+      this.hoveredNode = null;
+    },
+    addHeight(event){
+      const target = event.currentTarget; // 获取当前触发的 DOM 元素
+      target.style.height = `38px`;
+    },
+    reduceHeight(event){
+      const target = event.currentTarget; // 获取当前触发的 DOM 元素
+      target.style.height = `19px`;
+    },
     initConnect(){
       let _this = this;
       backgroundConn = chrome.runtime.connect({ name: "index-background-connection" });
@@ -720,7 +747,7 @@ export default {
           });
         } else if (result.action === Constant.PAGE_EVENT.DOWNLOAD_BOOKMARKS) {
           for (let i = result.datas.length - 1; i >= 0; i--) {
-            result.datas[i].id = null;
+            delete result.datas[i].id;
           }
           let newJsonString = JSON.stringify(result.datas, null, 2);
           // 创建 Blob 对象
@@ -1121,6 +1148,11 @@ export default {
 .el-popper.is-dark {
   max-width: 80%;
 }
+.bookmark_tips {
+  min-width: 200px;
+  max-width: 600px;
+  display: block;
+}
 </style>
 <style scoped>
 .context-menu {
@@ -1165,7 +1197,7 @@ export default {
 }
 
 .iconBtn {
-  --el-button-size: 15px;
+  --el-button-size: 18px;
   padding: 2px;
 }
 
