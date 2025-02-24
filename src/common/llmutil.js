@@ -12,8 +12,10 @@ const LLM = {
     config:null,
     model: null,
     clear: function(){
+        if (this.timer) {
+            clearInterval(this.timer);
+        }
         this.model = null;
-        this.timer = null;
         this.config = null;
         this.insufficientCount = 0;
         this.queue = [];
@@ -128,12 +130,12 @@ const LLM = {
                     } else if (data.tags) {
                         data.status = 9;
                     } else {
-                        console.log("未获取到总结", bookmark)
+                        console.log("未获取到总结", data)
                     }
                 }
                 BookmarkManager.saveBookmarks(input);
             } else {
-                console.log("未获取到总结", bookmark)
+                console.log("未获取到总结", input)
             }
         } catch (error) {
             console.warn("总结异常:", error, "result:", result, "resultText:", resultText, "datas:", datas, "temp:", temp);

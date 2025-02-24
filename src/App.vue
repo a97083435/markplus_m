@@ -496,6 +496,41 @@
     </el-form>
   </el-dialog>
 
+  <el-dialog v-model="showLLMTestDailog" width="600">
+    <el-form-item :label="t('userConfig.providerkey')">
+      <el-input v-model="userSetting.providerkey"/>
+    </el-form-item>
+    <el-form-item :label="t('userConfig.promt')" label-position="top">
+      <el-input
+          v-model="userSetting.promt"
+          :rows="8"
+          type="textarea"
+      />
+    </el-form-item>
+    <el-form-item label="数据" label-position="top">
+      <el-col :span="11">
+        <el-input
+            :rows="8"
+            type="textarea"
+            placeholder="输入"
+        />
+      </el-col>
+      <el-col :span="2" style="display: flex;justify-content: space-evenly;">
+        <el-icon><DArrowRight /></el-icon>
+      </el-col>
+      <el-col :span="11">
+        <el-input
+            :rows="8"
+            placeholder="输出"
+            type="textarea"
+        />
+      </el-col>
+    </el-form-item>
+    <el-form-item>
+      <el-button @click="closeLLMTestDailog">{{ t('btn.close') }}</el-button>
+    </el-form-item>
+  </el-dialog>
+
   <el-drawer v-model="setting.showUserConfig" direction="rtl">
     <template #header>
       {{ t('userConfig.title') }}
@@ -528,10 +563,15 @@
           </el-select>
         </el-form-item>
         <el-form-item :label="t('userConfig.llmEnabled')" label-position="left">
-          <el-switch v-model="userSetting.llmEnabled"/>
-          <br/>
+          <el-col :span="20">
+            <el-switch v-model="userSetting.llmEnabled"/>
+          </el-col>
+          <el-col :span="2">
+            <el-button type="primary" v-show="userSetting.llmEnabled"  @click="this.showLLMTestDailog = true">测试</el-button>
+          </el-col>
         </el-form-item>
         <el-card v-show="userSetting.llmEnabled">
+
           <el-form-item :label="t('userConfig.provider')" v-show="false">
             <el-input v-model="userSetting.provider"/>
           </el-form-item>
@@ -669,6 +709,7 @@ export default {
       },
       showBookmarkDailog: false,
       showBookmarkStatusDailog: false,
+      showLLMTestDailog: false,
       showContextMenu:false,
       menuLeft:0,
       menuTop:0,
@@ -687,22 +728,8 @@ export default {
   },
   methods: {
     handleMouseOver(data) {
-      console.log("handleMouseOver");
       // 鼠标悬浮时，记录当前节点的 ID
       this.hoveredNode = data.id;
-    },
-    handleMouseLeave() {
-      console.log("handleMouseLeave");
-      // 鼠标离开时，清空悬浮状态
-      this.hoveredNode = null;
-    },
-    addHeight(event){
-      const target = event.currentTarget; // 获取当前触发的 DOM 元素
-      target.style.height = `38px`;
-    },
-    reduceHeight(event){
-      const target = event.currentTarget; // 获取当前触发的 DOM 元素
-      target.style.height = `19px`;
     },
     initConnect(){
       let _this = this;
@@ -868,6 +895,9 @@ export default {
         this.originalBookmark = {...data}
       }
       this.showBookmarkDailog = true;
+    },
+    closeLLMTestDailog(){
+      this.showLLMTestDailog = false;
     },
     closeBookmarkDialog() {
       this.showBookmarkDailog = false;
