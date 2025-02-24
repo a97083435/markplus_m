@@ -552,8 +552,8 @@
       </el-form>
     </template>
     <template #footer>
-      <el-button type="primary" @click="saveUserSetting">{{ t('btn.save') }}</el-button>
-      <el-button @click="setting.showUserConfig=false">{{ t('btn.close') }}</el-button>
+      <el-button type="primary" size="default" @click="saveUserSetting">{{ t('btn.save') }}</el-button>
+      <el-button  size="default" @click="setting.showUserConfig=false">{{ t('btn.close') }}</el-button>
     </template>
   </el-drawer>
 </template>
@@ -1120,6 +1120,10 @@ export default {
 
     },
     openUrl(data) {
+      let url = data.url;
+      if (url.indexOf("span style") > -1) {
+        url = url.replace("<span style=\"color: #f56c6c\">","").replace("</span>","");
+      }
       window.open(data.url, '_blank');
     }
   },
