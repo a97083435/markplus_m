@@ -307,6 +307,7 @@
                               <el-descriptions-item v-if="data.url" :label="t('bookmark.url')"><span v-html="data.url" class="bookmark_tips"></span></el-descriptions-item>
                               <el-descriptions-item v-if="data.currentUrl" :label="t('bookmark.currentUrl')"><span v-html="data.currentUrl" class="bookmark_tips"></span></el-descriptions-item>
                               <el-descriptions-item v-if="data.metaTitle" :label="t('bookmark.metaTitle')"><span v-html="data.metaTitle" class="bookmark_tips"></span></el-descriptions-item>
+                              <el-descriptions-item v-if="data.metaKeywords" :label="t('bookmark.metaKeywords')"><span v-html="data.metaKeywords" class="bookmark_tips"></span></el-descriptions-item>
                               <el-descriptions-item v-if="data.metaDescription" :label="t('bookmark.metaDescription')" ><span v-html="data.metaDescription" class="bookmark_tips"></span></el-descriptions-item>
                               <el-descriptions-item v-if="data.tags" :label="t('bookmark.tags')"><span v-html="data.tags" class="bookmark_tips"></span></el-descriptions-item>
                               <el-descriptions-item v-if="data.dateAddedTime" :label="t('bookmark.dateAddedTime')"><span v-html="data.dateAddedTime"></span></el-descriptions-item>
