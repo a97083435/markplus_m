@@ -26,7 +26,7 @@ const LLM = {
             return this;
         }
         this.config = await UserSetting.getSysConfig();
-        // this.batchSize = this.config.crawlQueueLength;
+        this.batchSize = this.config.maxSummarizeTags;
         const genAI = new GoogleGenerativeAI(this.config.providerkey);
         this.model = genAI.getGenerativeModel({
             model: this.config.providerModel,
