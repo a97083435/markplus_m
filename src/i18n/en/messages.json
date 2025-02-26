@@ -12,6 +12,7 @@
   },
   "btn": {
     "save": "Save",
+    "test": "Test",
     "close": "Cancel",
     "del": "Delete",
     "delSelect": "Delete selected bookmarks",
@@ -56,8 +57,13 @@
   },
   "userConfig": {
     "title": "User settings",
+    "data": "Data",
+    "promptDebugInput": "Input",
+    "promptDebugOutput": "Output",
     "crawlQueueLength": "Concurrent number of scanned tags",
     "crawlQueueLength_title": "The number of bookmarks scanned simultaneously when clicking scan",
+    "maxSummarizeTags": "Maximum number of web pages summarized",
+    "maxSummarizeTags_title": "The maximum number of web page tabs that can be summarized at once is determined by testing.  Summarizing 3 web pages at a time is relatively stable.  Adjustments should be made after further testing.",
     "crawlStatus": "Scan status",
     "crawlStatus_title": "The status of bookmarks scanned when clicking scan",
     "llmEnabled": "Gemini summarize web page tags",

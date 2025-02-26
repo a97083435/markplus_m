@@ -12,6 +12,7 @@
   },
   "btn": {
     "save": "保存",
+    "test": "测试",
     "close": "取消",
     "del": "删除",
     "delSelect": "删除选中书签",
@@ -56,8 +57,13 @@
   },
   "userConfig": {
     "title": "用户设置",
+    "data": "数据",
+    "promptDebugInput": "输入",
+    "promptDebugOutput": "输出",
     "crawlQueueLength": "扫描标签并发数",
     "crawlQueueLength_title": "点击扫描时，同时扫描书签的个数",
+    "maxSummarizeTags": "最大总结网页数量",
+    "maxSummarizeTags_title": "一次最多总结多少个网页标签,经测试一次性总结3个网页比较稳定，请测试后再进行修改",
     "crawlStatus": "扫描状态",
     "crawlStatus_title": "点击扫描时，扫描的书签状态",
     "llmEnabled": "Gemini总结网页标签",

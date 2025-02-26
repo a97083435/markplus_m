@@ -101,6 +101,21 @@ const LLM = {
             this.queue.push(bookmark);
         }
     },
+    summarizeTags:async function(input){
+        let result, resultText, temp;
+        try {
+            const chatSession = this.model.startChat({
+                history: [],
+            });
+            console.log("发送数据:", input);
+            result = await chatSession.sendMessage(JSON.stringify(input));
+            resultText = result?.response?.candidates[0]?.content?.parts?.[0]?.text;
+            console.log("总结数据:", resultText);
+            return resultText
+        } catch (error) {
+            return error.toString();
+        }
+    },
     summarizeTagsBatch: async function (input) {
         let result, resultText, temp;
         let datas = [];

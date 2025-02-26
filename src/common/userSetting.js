@@ -3,6 +3,7 @@ import Constant from './constant.js';
 /**
  * 包含字段
  * crawlQueueLength:爬取队列长度
+ * maxSummarizeTags:最大总结标签数量
  * crawlStatus: 爬取状态,空为所有，多个状态使用","分割
  * provider: llm厂商
  * providerkey: llm 密钥
@@ -64,11 +65,18 @@ const UserSetting={
                         "}]\n" +
                         "```",
                     crawlQueueLength:5,
+                    maxSummarizeTags:3,
                     crawlStatus:[-1,0]
                 };
                 _this.setSysConfig(data);
             }else{
                 data = JSON.parse(data);
+            }
+            if (!data.crawlQueueLength) {
+                data.crawlQueueLength = 5;
+            }
+            if (!data.maxSummarizeTags) {
+                data.maxSummarizeTags = 3;
             }
             return data;
         });

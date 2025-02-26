@@ -496,40 +496,7 @@
     </el-form>
   </el-dialog>
 
-  <el-dialog v-model="showLLMTestDailog" width="600">
-    <el-form-item :label="t('userConfig.providerkey')">
-      <el-input v-model="userSetting.providerkey"/>
-    </el-form-item>
-    <el-form-item :label="t('userConfig.promt')" label-position="top">
-      <el-input
-          v-model="userSetting.promt"
-          :rows="8"
-          type="textarea"
-      />
-    </el-form-item>
-    <el-form-item label="数据" label-position="top">
-      <el-col :span="11">
-        <el-input
-            :rows="8"
-            type="textarea"
-            placeholder="输入"
-        />
-      </el-col>
-      <el-col :span="2" style="display: flex;justify-content: space-evenly;">
-        <el-icon><DArrowRight /></el-icon>
-      </el-col>
-      <el-col :span="11">
-        <el-input
-            :rows="8"
-            placeholder="输出"
-            type="textarea"
-        />
-      </el-col>
-    </el-form-item>
-    <el-form-item>
-      <el-button @click="closeLLMTestDailog">{{ t('btn.close') }}</el-button>
-    </el-form-item>
-  </el-dialog>
+
 
   <el-drawer v-model="setting.showUserConfig" direction="rtl">
     <template #header>
@@ -542,6 +509,14 @@
               v-model="userSetting.crawlQueueLength"
               :min="1"
               :max="30"
+              :show-input="true"
+          />
+        </el-form-item>
+        <el-form-item :label="t('userConfig.maxSummarizeTags')" :title="t('userConfig.maxSummarizeTags_title')">
+          <el-slider
+              v-model="userSetting.maxSummarizeTags"
+              :min="1"
+              :max="20"
               :show-input="true"
           />
         </el-form-item>
@@ -567,11 +542,48 @@
             <el-switch v-model="userSetting.llmEnabled"/>
           </el-col>
           <el-col :span="2">
-            <el-button type="primary" v-show="userSetting.llmEnabled"  @click="this.showLLMTestDailog = true">测试</el-button>
+            <el-button type="primary" v-show="userSetting.llmEnabled"  @click="this.showLLMTestDrawer = true">{{t('btn.test')}}</el-button>
+            <el-drawer v-model="this.showLLMTestDrawer" size="28%">
+              <el-form-item :label="t('userConfig.providerkey')">
+                <el-input v-model="userSetting.providerkey"/>
+              </el-form-item>
+              <el-form-item :label="t('userConfig.promt')" label-position="top">
+                <el-input
+                    v-model="userSetting.promt"
+                    :rows="8"
+                    type="textarea"
+                />
+              </el-form-item>
+              <el-form-item :label="t('userConfig.data')" label-position="top">
+                <el-col :span="11">
+                  <el-input
+                      :rows="8"
+                      type="textarea"
+                      v-model="promptDebugInput"
+                      :placeholder="t('userConfig.promptDebugInput')"
+                  />
+                </el-col>
+                <el-col :span="2" style="display: flex;justify-content: space-evenly;">
+                  <el-icon v-if="!this.promptDebug"><DArrowRight /></el-icon>
+                  <el-icon v-else><Loading /></el-icon>
+                </el-col>
+                <el-col :span="11">
+                  <el-input
+                      :rows="8"
+                      type="textarea"
+                      :placeholder="t('userConfig.promptDebugOutput')"
+                      v-model="promptDebugOutPut"
+                  />
+                </el-col>
+              </el-form-item>
+              <template #footer>
+                <el-button type="primary" size="default" @click="this.promptDebugRun()">{{ t('btn.test') }}</el-button>
+                <el-button  size="default" @click="this.showLLMTestDrawer=false">{{ t('btn.close') }}</el-button>
+              </template>
+            </el-drawer>
           </el-col>
         </el-form-item>
         <el-card v-show="userSetting.llmEnabled">
-
           <el-form-item :label="t('userConfig.provider')" v-show="false">
             <el-input v-model="userSetting.provider"/>
           </el-form-item>
@@ -709,8 +721,11 @@ export default {
       },
       showBookmarkDailog: false,
       showBookmarkStatusDailog: false,
-      showLLMTestDailog: false,
+      showLLMTestDrawer: false,
       showContextMenu:false,
+      promptDebug:false,
+      promptDebugInput:"",
+      promptDebugOutPut:"",
       menuLeft:0,
       menuTop:0,
       inputVisible: false,
@@ -727,6 +742,16 @@ export default {
     };
   },
   methods: {
+    promptDebugRun(){
+      let _this = this;
+      _this.promptDebug = true;
+      LLM.init().then(self =>{
+        self.summarizeTags(this.promptDebugInput).then(value => {
+          _this.promptDebug = false;
+          _this.promptDebugOutPut = value;
+        });
+      });
+    },
     handleMouseOver(data) {
       // 鼠标悬浮时，记录当前节点的 ID
       this.hoveredNode = data.id;
@@ -808,6 +833,8 @@ export default {
             }
             return acc;
           }, {});
+
+          let inputArr = [];
           for (const data of datas) {
             map[data.id] = data;
             if (map[data.parentId] != null) {
@@ -815,6 +842,9 @@ export default {
             }
             if (data.type === 'folder'){
               continue;
+            }
+            if(inputArr.length<_this.userSetting.maxSummarizeTags && data.url && data.url.startsWith("http")){
+              inputArr.push(data);
             }
             switch (data.status) {
               case -1: stat.error++; break;
@@ -831,6 +861,8 @@ export default {
                 break;
             }
           }
+
+          _this.promptDebugInput = JSON.stringify(inputArr, ['id','title','url','domainTitle','metaKeywords','metaDescription','metaTags'], 2);
           _this.statistics = { ..._this.statistics, ...stat }
           _this.treeData = Util.getRootTree(treeData);
         }
@@ -896,8 +928,8 @@ export default {
       }
       this.showBookmarkDailog = true;
     },
-    closeLLMTestDailog(){
-      this.showLLMTestDailog = false;
+    closeLLMTestDrawer(){
+      this.showLLMTestDrawer = false;
     },
     closeBookmarkDialog() {
       this.showBookmarkDailog = false;
