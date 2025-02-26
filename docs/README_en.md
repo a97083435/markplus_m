@@ -69,7 +69,14 @@ English | [简体中文](../README.md)
 
 
 ## 📝 Changelog
-
+### 0.0.5
+#### ✨ New Features
+Added Geminid call test
+### 0.0.4
+#### ✨ New Features
+Search now supports regular expressions
+#### 🔨 Optimizations and Improvements
+Adjusted page styling
 ### 0.0.3
 #### ✨ New Features
 - Added automatic browser language detection
