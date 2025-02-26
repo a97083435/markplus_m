@@ -268,7 +268,7 @@ chrome.runtime.onConnect.addListener(function (port) {
 //在打开的tab页中执行脚本获取元数据
 async function updateBookMark(datas, tabId) {
     let bookmark = datas[0];
-    if (bookmark.metaTitle == '') {
+    if (bookmark.status != 9 ) {
         chrome.scripting.executeScript({
             target: {tabId: tabId},
             function: () => {

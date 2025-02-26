@@ -370,6 +370,9 @@ const BookmarkManager = {
     },
     highlightSearch: function(data,pro,value,regex){
         let str = value.replace(regex,(match) => `<span style="color: #f56c6c">${match}</span>`);
+        if(pro == "url"){
+            pro = "showUrl";
+        }
         data[pro] = str;
     },
     queryBookmarks: function (queryDto) {

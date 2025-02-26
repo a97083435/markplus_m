@@ -304,8 +304,8 @@
                               <el-descriptions-item v-if="setting.debug" label="status"><span v-html="data.status"></span></el-descriptions-item>
                               <el-descriptions-item :label="t('bookmark.treeName')"><span v-html="data.treeName"></span></el-descriptions-item>
                               <el-descriptions-item v-if="data.title" :label="t('bookmark.title')"><span v-html="data.title" class="bookmark_tips"></span></el-descriptions-item>
-                              <el-descriptions-item v-if="data.url" :label="t('bookmark.url')"><span v-html="data.url" class="bookmark_tips"></span></el-descriptions-item>
-                              <el-descriptions-item v-if="data.currentUrl" :label="t('bookmark.currentUrl')"><span v-html="data.currentUrl" class="bookmark_tips"></span></el-descriptions-item>
+                              <el-descriptions-item v-if="data.url" :label="t('bookmark.url')"><span v-html="data.showUrl?data.showUrl:data.url" class="bookmark_tips"></span></el-descriptions-item>
+                              <el-descriptions-item v-if="data.currentUrl && data.url!=data.currentUrl" :label="t('bookmark.currentUrl')"><span v-html="data.currentUrl" class="bookmark_tips"></span></el-descriptions-item>
                               <el-descriptions-item v-if="data.metaTitle" :label="t('bookmark.metaTitle')"><span v-html="data.metaTitle" class="bookmark_tips"></span></el-descriptions-item>
                               <el-descriptions-item v-if="data.metaKeywords" :label="t('bookmark.metaKeywords')"><span v-html="data.metaKeywords" class="bookmark_tips"></span></el-descriptions-item>
                               <el-descriptions-item v-if="data.metaDescription" :label="t('bookmark.metaDescription')" ><span v-html="data.metaDescription" class="bookmark_tips"></span></el-descriptions-item>
@@ -1183,10 +1183,6 @@ export default {
 
     },
     openUrl(data) {
-      let url = data.url;
-      if (url.indexOf("span style") > -1) {
-        url = url.replace("<span style=\"color: #f56c6c\">","").replace("</span>","");
-      }
       window.open(data.url, '_blank');
     }
   },
