@@ -240,15 +240,19 @@ chrome.runtime.onConnect.addListener(function (port) {
                         continue;
                     }
                     await Util.awaitLoad(userConfig);
-                    await chrome.tabs.create({url: data.url, active: false}, function (tab) {
-                        if(tab){
-                            console.log("创建tab",tab.id,data.url);
-                            chrome.storage.local.set({[Util.getRemoveTabKey(tab.id)]: tab.id});
-                            // const tabKey = Util.getTabKey(details.tabId);
-                            // console.log("打开地址:", details.tabId,url)
-                            chrome.storage.local.set({[Util.getTabKey(tab.id)]: data.url});
-                        }
-                    });
+                    if(data.status == 2){
+                        LLM.init().then(self => self.addSummarizeQueue(data));
+                    }else{
+                        await chrome.tabs.create({url: data.url, active: false}, function (tab) {
+                            if(tab){
+                                console.log("创建tab",tab.id,data.url);
+                                chrome.storage.local.set({[Util.getRemoveTabKey(tab.id)]: tab.id});
+                                // const tabKey = Util.getTabKey(details.tabId);
+                                // console.log("打开地址:", details.tabId,url)
+                                chrome.storage.local.set({[Util.getTabKey(tab.id)]: data.url});
+                            }
+                        });
+                    }
                 }
                 chrome.storage.local.set({[Constant.ENV.SYS_CRAWL_STATUS]: "0"});
             })

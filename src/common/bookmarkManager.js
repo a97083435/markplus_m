@@ -404,8 +404,11 @@ const BookmarkManager = {
                                 }
                             }
                         }else if (operator === "like") {
-                            if (cursor.value[prop] && regex.test(cursor.value[pro]) ) {
-                                _this.highlightSearch(searchResult,pro,cursor.value[pro],regex);
+                            if (prop == "tags" && cursor.value[prop] && regex.test(cursor.value[prop].join(','))) {
+                                _this.highlightSearch(searchResult,prop,cursor.value[prop].join(','),regex);
+                                results.push(searchResult);
+                            }else if (cursor.value[prop] && regex.test(cursor.value[prop]) ) {
+                                _this.highlightSearch(searchResult,prop,cursor.value[prop],regex);
                                 results.push(searchResult);
                             }
                         } else if (prop == 'status' && cursor.value.type == 'folder') {
