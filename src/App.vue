@@ -277,12 +277,12 @@
                                 border
                             >
                               <el-descriptions-item v-if="setting.debug" label="id"><span v-html="data.id"></span></el-descriptions-item>
-                              <el-descriptions-item :label="t('bookmark.treeName')"><span v-html="data.treeName"></span></el-descriptions-item>
-                              <el-descriptions-item v-if="data.title" :label="t('bookmark.title')"><span v-html="data.title" class="bookmark_tips"></span></el-descriptions-item>
-                              <el-descriptions-item v-if="data.dateAddedTime" :label="t('bookmark.dateAddedTime')"><span v-html="data.dateAddedTime"></span></el-descriptions-item>
+                              <el-descriptions-item :label="t('bookmark.treeName')"><span v-html="data.treeNameShow || data.treeName"></span></el-descriptions-item>
+                              <el-descriptions-item v-if="data.title" :label="t('bookmark.title')"><span v-html="data.titleShow || data.title" class="bookmark_tips"></span></el-descriptions-item>
+                              <el-descriptions-item v-if="data.dateAddedTime" :label="t('bookmark.dateAddedTime')"><span v-html="data.dateAddedTimeShow || data.dateAddedTime"></span></el-descriptions-item>
                             </el-descriptions>
                           </template>
-                          <el-text class="dir-text" @dblclick="queryByDir(data)" v-html="data.title"/>
+                          <el-text class="dir-text" @dblclick="queryByDir(data)" v-html="data.titleShow || data.title"/>
                         </el-tooltip>
                       </template>
                       <template v-else>
@@ -302,18 +302,18 @@
                             >
                               <el-descriptions-item v-if="setting.debug" label="id"><span v-html="data.id"></span></el-descriptions-item>
                               <el-descriptions-item v-if="setting.debug" label="status"><span v-html="data.status"></span></el-descriptions-item>
-                              <el-descriptions-item :label="t('bookmark.treeName')"><span v-html="data.treeName"></span></el-descriptions-item>
-                              <el-descriptions-item v-if="data.title" :label="t('bookmark.title')"><span v-html="data.title" class="bookmark_tips"></span></el-descriptions-item>
-                              <el-descriptions-item v-if="data.url" :label="t('bookmark.url')"><span v-html="data.showUrl?data.showUrl:data.url" class="bookmark_tips"></span></el-descriptions-item>
-                              <el-descriptions-item v-if="data.currentUrl && data.url!=data.currentUrl" :label="t('bookmark.currentUrl')"><span v-html="data.currentUrl" class="bookmark_tips"></span></el-descriptions-item>
-                              <el-descriptions-item v-if="data.metaTitle" :label="t('bookmark.metaTitle')"><span v-html="data.metaTitle" class="bookmark_tips"></span></el-descriptions-item>
-                              <el-descriptions-item v-if="data.metaKeywords" :label="t('bookmark.metaKeywords')"><span v-html="data.metaKeywords" class="bookmark_tips"></span></el-descriptions-item>
-                              <el-descriptions-item v-if="data.metaDescription" :label="t('bookmark.metaDescription')" ><span v-html="data.metaDescription" class="bookmark_tips"></span></el-descriptions-item>
-                              <el-descriptions-item v-if="data.tags" :label="t('bookmark.tags')"><span v-html="data.tags" class="bookmark_tips"></span></el-descriptions-item>
-                              <el-descriptions-item v-if="data.dateAddedTime" :label="t('bookmark.dateAddedTime')"><span v-html="data.dateAddedTime"></span></el-descriptions-item>
+                              <el-descriptions-item :label="t('bookmark.treeName')"><span v-html="data.treeNameShow || data.treeName"></span></el-descriptions-item>
+                              <el-descriptions-item v-if="data.title " :label="t('bookmark.title')"><span v-html="data.titleShow || data.title" class="bookmark_tips"></span></el-descriptions-item>
+                              <el-descriptions-item v-if="data.url " :label="t('bookmark.url')"><span v-html="data.urlShow || data.url" class="bookmark_tips"></span></el-descriptions-item>
+                              <el-descriptions-item v-if="data.currentUrl && data.url!=data.currentUrl" :label="t('bookmark.currentUrl')"><span v-html="data.currentUrlShow || data.currentUrl" class="bookmark_tips"></span></el-descriptions-item>
+                              <el-descriptions-item v-if="data.metaTitle" :label="t('bookmark.metaTitle')"><span v-html="data.metaTitleShow || data.metaTitle" class="bookmark_tips"></span></el-descriptions-item>
+                              <el-descriptions-item v-if="data.metaKeywords " :label="t('bookmark.metaKeywords')"><span v-html="data.metaKeywordsShow || data.metaKeywords" class="bookmark_tips"></span></el-descriptions-item>
+                              <el-descriptions-item v-if="data.metaDescription " :label="t('bookmark.metaDescription')" ><span v-html="data.metaDescriptionShow || data.metaDescription" class="bookmark_tips"></span></el-descriptions-item>
+                              <el-descriptions-item v-if="data.tags" :label="t('bookmark.tags')"><span v-html="data.tagsShow || data.tags" class="bookmark_tips"></span></el-descriptions-item>
+                              <el-descriptions-item v-if="data.dateAddedTime" :label="t('bookmark.dateAddedTime')"><span v-html="data.dateAddedTimeShow || data.dateAddedTime"></span></el-descriptions-item>
                             </el-descriptions>
                           </template>
-                          <el-text class="bookmark-text" truncated @dblclick="openUrl(data)" v-html="data.title ? data.title.slice(0, 100) : data.url"/>
+                          <el-text class="bookmark-text" truncated @dblclick="openUrl(data)" v-html="showTitle(data)"/>
                         </el-tooltip>
                       </template>
                     </el-col>
@@ -743,6 +743,12 @@ export default {
     };
   },
   methods: {
+    showTitle(data){
+      let title =  data.titleShow || data.title;
+      let url =  data.urlShow || data.url;
+      let str = title || url;
+      return str;
+    },
     promptDebugRun(){
       let _this = this;
       _this.promptDebug = true;
@@ -1268,13 +1274,12 @@ export default {
   display: inline-block;
   color: initial; /* 初始颜色 */
   text-decoration: none; /* 无下划线 */
-  width: 80%;
+  width: 900px;
 }
 
 .bookmark-text:hover {
   color: #409EFF; /* 悬浮时的颜色 */
   text-decoration: underline; /* 悬浮时的下划线 */
-  width: 80%;
 }
 
 .folder-icon {
