@@ -67,9 +67,8 @@
     "crawlStatus": "Scan status",
     "crawlStatus_title": "The status of bookmarks scanned when clicking scan",
     "llmEnabled": "Gemini summarize web page tags",
-    "provider": "LLM provider",
-    "providerkey": "Gemini key",
-    "providerModel": "LLM model name",
+    "provider": "Provider / Model",
+    "providerkey": "Api Key",
     "promt": "Prompt for summarizing tags"
   },
   "searchQuery": {

@@ -2,7 +2,7 @@ import UserSetting from './userSetting.js';
 import BookmarkManager from './bookmarkManager.js';
 import {GoogleGenerativeAI,} from "@google/generative-ai";
 
-const LLM = {
+const LLM_M = {
     queue: [],
     processing: false,
     timer: null,
@@ -158,7 +158,7 @@ const LLM = {
     }
 }
 
-export default LLM;
+export default LLM_M;
 
 
 // 输出路径  result.response.candidates[0].content.parts[1]

@@ -67,9 +67,8 @@
     "crawlStatus": "扫描状态",
     "crawlStatus_title": "点击扫描时，扫描的书签状态",
     "llmEnabled": "Gemini总结网页标签",
-    "provider": "llm供应商",
-    "providerkey": "Gemini密钥",
-    "providerModel": "llm模型名称",
+    "provider": "供应商 / 模型名称",
+    "providerkey": "密钥",
     "promt": "总结标签提示词"
   },
   "searchQuery": {

@@ -539,60 +539,89 @@
           </el-select>
         </el-form-item>
         <el-form-item :label="t('userConfig.llmEnabled')" label-position="left">
-          <el-col :span="20">
-            <el-switch v-model="userSetting.llmEnabled"/>
-          </el-col>
-          <el-col :span="2">
-            <el-button type="primary" v-show="userSetting.llmEnabled"  @click="this.showLLMTestDrawer = true">{{t('btn.test')}}</el-button>
-            <el-drawer v-model="this.showLLMTestDrawer" size="28%">
-              <el-form-item :label="t('userConfig.providerkey')">
-                <el-input v-model="userSetting.providerkey"/>
-              </el-form-item>
-              <el-form-item :label="t('userConfig.promt')" label-position="top">
-                <el-input
-                    v-model="userSetting.promt"
-                    :rows="8"
-                    type="textarea"
+          <el-row style="width: 99%">
+            <el-col :span="4">
+              <el-switch v-model="userSetting.llmEnabled"/>
+            </el-col>
+            <el-col :span="7">
+              <el-select v-model="userSetting.provider" v-show="userSetting.llmEnabled">
+                <el-option
+                    v-for="item in providers"
+                    :label="item.label"
+                    :value="item.value"
                 />
-              </el-form-item>
-              <el-form-item :label="t('userConfig.data')" label-position="top">
-                <el-col :span="11">
+              </el-select>
+            </el-col>
+            <el-col :span="1">
+            </el-col>
+            <el-col :span="7">
+              <el-input  v-model="userSetting.providerModel" v-show="userSetting.llmEnabled"/>
+            </el-col>
+            <el-col :span="1">
+            </el-col>
+            <el-col :span="4" >
+              <el-button type="primary" v-show="userSetting.llmEnabled"  @click="this.showLLMTestDrawer = true">{{t('btn.test')}}</el-button>
+              <el-drawer v-model="this.showLLMTestDrawer" size="28%">
+                <el-form-item :label="t('userConfig.provider')">
+                  <el-col :span="6">
+                    <el-select v-model="userSetting.provider">
+                      <el-option
+                          v-for="item in providers"
+                          :label="item.label"
+                          :value="item.value"
+                      />
+                    </el-select>
+                  </el-col>
+                  <el-col :span="2" style="text-align: center">
+                    /
+                  </el-col>
+                  <el-col :span="16">
+                    <el-input v-model="userSetting.providerModel"/>
+                  </el-col>
+                </el-form-item>
+                <el-form-item :label="t('userConfig.providerkey')">
+                  <el-input v-model="userSetting.providerkey"/>
+                </el-form-item>
+                <el-form-item :label="t('userConfig.promt')" >
                   <el-input
+                      v-model="userSetting.promt"
                       :rows="8"
                       type="textarea"
-                      v-model="promptDebugInput"
-                      :placeholder="t('userConfig.promptDebugInput')"
                   />
-                </el-col>
-                <el-col :span="2" style="display: flex;justify-content: space-evenly;">
-                  <el-icon v-if="!this.promptDebug"><DArrowRight /></el-icon>
-                  <el-icon v-else><Loading /></el-icon>
-                </el-col>
-                <el-col :span="11">
-                  <el-input
-                      :rows="8"
-                      type="textarea"
-                      :placeholder="t('userConfig.promptDebugOutput')"
-                      v-model="promptDebugOutPut"
-                  />
-                </el-col>
-              </el-form-item>
-              <template #footer>
-                <el-button type="primary" size="default" @click="this.promptDebugRun()">{{ t('btn.test') }}</el-button>
-                <el-button  size="default" @click="this.showLLMTestDrawer=false">{{ t('btn.close') }}</el-button>
-              </template>
-            </el-drawer>
-          </el-col>
+                </el-form-item>
+                <el-form-item :label="t('userConfig.data')" >
+                  <el-col :span="11">
+                    <el-input
+                        :rows="8"
+                        type="textarea"
+                        v-model="promptDebugInput"
+                        :placeholder="t('userConfig.promptDebugInput')"
+                    />
+                  </el-col>
+                  <el-col :span="2" style="display: flex;justify-content: space-evenly;">
+                    <el-icon v-if="!this.promptDebug"><DArrowRight /></el-icon>
+                    <el-icon v-else><Loading /></el-icon>
+                  </el-col>
+                  <el-col :span="11">
+                    <el-input
+                        :rows="8"
+                        type="textarea"
+                        :placeholder="t('userConfig.promptDebugOutput')"
+                        v-model="promptDebugOutPut"
+                    />
+                  </el-col>
+                </el-form-item>
+                <template #footer>
+                  <el-button type="primary" size="default" @click="this.promptDebugRun()">{{ t('btn.test') }}</el-button>
+                  <el-button  size="default" @click="this.showLLMTestDrawer=false">{{ t('btn.close') }}</el-button>
+                </template>
+              </el-drawer>
+            </el-col>
+          </el-row>
         </el-form-item>
         <el-card v-show="userSetting.llmEnabled">
-          <el-form-item :label="t('userConfig.provider')" v-show="false">
-            <el-input v-model="userSetting.provider"/>
-          </el-form-item>
           <el-form-item :label="t('userConfig.providerkey')">
             <el-input v-model="userSetting.providerkey"/>
-          </el-form-item>
-          <el-form-item :label="t('userConfig.providerModel')" v-show="false">
-            <el-input v-model="userSetting.providerModel"/>
           </el-form-item>
           <el-form-item :label="t('userConfig.promt')">
             <el-input
@@ -627,12 +656,13 @@ import {
   ElTree
 } from 'element-plus';
 import BookmarkManager from "./common/bookmarkManager.js";
-import LLM from './common/llmutil.js';
+import LLM_M from './common/llmutil.js';
 import { useI18n } from 'vue-i18n'
 import {nextTick, ref,toRaw} from 'vue';
 import Setting from "./common/userSetting.js";
 import Util from "./common/utils.js";
 import {Delete} from "@element-plus/icons-vue";
+
 let backgroundConn = null
 const InputRef = ref(null);
 export default {
@@ -662,6 +692,45 @@ export default {
     let _this = this;
     return {
       userSetting: {},
+      providers:[
+        {
+          value: 'deepseek',
+          label: 'DeepSeek',
+        },
+        {
+          value: 'openai',
+          label: 'OpenAI',
+        },
+        {
+          value: 'anthropic',
+          label: 'Anthropic',
+        },
+        {
+          value: 'google',
+          label: 'Google',
+        },
+        {
+          value: 'mistral',
+          label: 'Mistral',
+        },
+        {
+          value: 'groq',
+          label: 'Groq',
+        },
+        {
+          value: 'together',
+          label: 'Together',
+        },{
+          value: 'ollama',
+          label: 'Ollama',
+        },{
+          value: 'llamafile',
+          label: 'llamafile',
+        },{
+          value: 'perplexity',
+          label: 'Perplexity',
+        }
+      ],
       setting: {
         debug: import.meta.env.VITE_SETTING_DEBUG=='true',
         editModel: import.meta.env.VITE_SETTING_EDITMODEL=='true',
@@ -752,7 +821,7 @@ export default {
     promptDebugRun(){
       let _this = this;
       _this.promptDebug = true;
-      LLM.init().then(self =>{
+      LLM_M.init().then(self =>{
         self.summarizeTags(this.promptDebugInput).then(value => {
           _this.promptDebug = false;
           _this.promptDebugOutPut = value;
@@ -817,7 +886,7 @@ export default {
           a.download = 'data.json';
           a.click();
         } else if (result.action === Constant.PAGE_EVENT.SAVE_TO_D1) {
-          LLM.summarizeTags(JSON.stringify(result.datas[0]));
+          LLM_M.summarizeTags(JSON.stringify(result.datas[0]));
         }  else if (result.action === Constant.PAGE_EVENT.RELOAD_PAGE) {
           _this.reloadBookmarkPage();
         } else if (result.action === Constant.PAGE_EVENT.STATISTICS_TOTAL) {
@@ -901,7 +970,7 @@ export default {
     saveUserSetting() {
       const _this = this;
       Setting.setSysConfig(this.userSetting);
-      LLM.clear();
+      LLM_M.clear();
       ElMessage({
         message: _this.t('tips.modifyUserSuccess'),
         type: 'success',
@@ -1193,6 +1262,7 @@ export default {
     }
   },
   mounted() {
+
     const _this = this;
     _this.initConnect();
     Setting.getSysConfig().then(config => {

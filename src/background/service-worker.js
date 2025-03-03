@@ -1,7 +1,7 @@
 import BookmarkManager from '../common/bookmarkManager.js';
 import Constant from '../common/constant.js';
 import Util from "../common/utils.js";
-import LLM from '../common/llmutil.js';
+import LLM_M from '../common/llmutil.js';
 import userSetting from "../common/userSetting.js";
 
 /**
@@ -241,7 +241,7 @@ chrome.runtime.onConnect.addListener(function (port) {
                     }
                     await Util.awaitLoad(userConfig);
                     if(data.status == 2){
-                        LLM.init().then(self => self.addSummarizeQueue(data));
+                        LLM_M.init().then(self => self.addSummarizeQueue(data));
                     }else{
                         await chrome.tabs.create({url: data.url, active: false}, function (tab) {
                             if(tab){
@@ -314,10 +314,10 @@ async function updateBookMark(datas, tabId) {
                 }
                 BookmarkManager.saveBookmarks(datas);
             }
-            LLM.init().then(self => self.addSummarizeQueue(bookmark));
+            LLM_M.init().then(self => self.addSummarizeQueue(bookmark));
         });
     } else if (!bookmark.tags || bookmark.tags.length == 0) {
-        LLM.init().then(self => self.addSummarizeQueue(bookmark));
+        LLM_M.init().then(self => self.addSummarizeQueue(bookmark));
     }
 }
 
