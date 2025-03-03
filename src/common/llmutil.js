@@ -1,12 +1,12 @@
 import UserSetting from './userSetting.js';
 import BookmarkManager from './bookmarkManager.js';
 import {GoogleGenerativeAI,} from "@google/generative-ai";
+import LLM from "@themaximalist/llm.js";
 
 const LLM_M = {
     queue: [],
     processing: false,
     timer: null,
-    batchSize: 3,  // 每批处理的数量
     scanInterval: 1000,  // 批次间延迟（毫秒）
     insufficientCount: 0,
     config:null,
@@ -26,19 +26,8 @@ const LLM_M = {
             return this;
         }
         this.config = await UserSetting.getSysConfig();
-        this.batchSize = this.config.maxSummarizeTags;
-        const genAI = new GoogleGenerativeAI(this.config.providerkey);
-        this.model = genAI.getGenerativeModel({
-            model: this.config.providerModel,
-            systemInstruction: this.config.promt,
-            generationConfig:{
-                temperature: 1,
-                topP: 0.95,
-                topK: 64,
-                maxOutputTokens: 8192,
-                responseMimeType: "application/json"
-            }
-        });
+
+        this.model = new LLM();
         if (this.config.llmEnabled) {
             this.startQueueScanner();
         }
@@ -61,13 +50,13 @@ const LLM_M = {
             this.insufficientCount = 0;  // 重置计数
             return;
         }
-
+        this.config = await UserSetting.getSysConfig();
         // 检查队列长度和处理条件
-        if (this.queue.length >= this.batchSize) {
+        if (this.queue.length >= this.config.maxSummarizeTags) {
             this.insufficientCount = 0;  // 重置计数
             this.processing = true;
             try {
-                const batchToProcess = this.queue.splice(0, this.batchSize);
+                const batchToProcess = this.queue.splice(0, this.config.maxSummarizeTags);
                 await this.summarizeTagsBatch(batchToProcess);
                 console.log(`处理完成一批数据，剩余队列长度: ${this.queue.length}`);
             } catch (error) {
@@ -83,7 +72,7 @@ const LLM_M = {
             if (this.insufficientCount >= 20) {
                 this.processing = true;
                 try {
-                    let length = this.queue.length > this.batchSize ? this.batchSize : this.queue.length;
+                    let length = this.queue.length > this.config.maxSummarizeTags ? this.config.maxSummarizeTags : this.queue.length;
                     const remainingBookmarks = this.queue.splice(0, length);
                     console.log(`处理剩余 ${remainingBookmarks.length} 条数据`);
                     await this.summarizeTagsBatch(remainingBookmarks);
@@ -102,16 +91,22 @@ const LLM_M = {
         }
     },
     summarizeTags:async function(input){
-        let result, resultText, temp;
+        let result;
         try {
-            const chatSession = this.model.startChat({
-                history: [],
-            });
+            this.config = await UserSetting.getSysConfig();
+            this.model = new LLM();
+            this.model.system(this.config.promt);
+            result = await this.model.chat(input,
+                {
+                    service: this.config.provider,
+                    model: this.config.providerModel,
+                    apikey:this.config.providerkey,
+                    parser: LLM.parsers.json
+                });
+            result = JSON.stringify(result, null, 2);
             console.log("发送数据:", input);
-            result = await chatSession.sendMessage(JSON.stringify(input));
-            resultText = result?.response?.candidates[0]?.content?.parts?.[0]?.text;
-            console.log("总结数据:", resultText);
-            return resultText
+            console.log("总结数据:", result);
+            return result
         } catch (error) {
             return error.toString();
         }
@@ -120,19 +115,29 @@ const LLM_M = {
         let result, resultText, temp;
         let datas = [];
         try {
-            const chatSession = this.model.startChat({
-                history: [],
-            });
+            // const chatSession = this.model.startChat({
+            //     history: [],
+            // });
             console.log("发送数据:", input);
-            result = await chatSession.sendMessage(JSON.stringify(input));
-            resultText = result?.response?.candidates[0]?.content?.parts?.[0]?.text;
-            console.log("总结数据:", resultText);
-            if (resultText) {
-                temp = JSON.parse(resultText);
-                if (!Array.isArray(temp)) {
-                    datas.push(temp);
+            // result = await chatSession.sendMessage(JSON.stringify(input));
+            // resultText = result?.response?.candidates[0]?.content?.parts?.[0]?.text;
+            // console.log("总结数据:", resultText);
+
+            this.model = new LLM();
+            this.model.system(this.config.promt);
+            result = await this.model.chat(input,
+                {
+                    service: this.config.provider,
+                    model: this.config.providerModel,
+                    apikey:this.config.providerkey,
+                    parser: LLM.parsers.json
+                });
+            console.log("总结数据:", result);
+            if (result) {
+                if (!Array.isArray(result)) {
+                    datas.push(result);
                 } else {
-                    datas = temp;
+                    datas = result;
                 }
                 const map = new Map(datas.map(item => [item.id, item]));
                 for (let data of input) {

@@ -821,12 +821,13 @@ export default {
     promptDebugRun(){
       let _this = this;
       _this.promptDebug = true;
-      LLM_M.init().then(self =>{
-        self.summarizeTags(this.promptDebugInput).then(value => {
+      Setting.setSysConfig(this.userSetting).then( o => {
+        LLM_M.summarizeTags(this.promptDebugInput).then(value => {
           _this.promptDebug = false;
           _this.promptDebugOutPut = value;
         });
       });
+
     },
     handleMouseOver(data) {
       // 鼠标悬浮时，记录当前节点的 ID

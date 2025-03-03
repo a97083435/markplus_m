@@ -59,3 +59,5 @@ Chrome 书签管理增强插件 - 让你的书签管理更智能
 
 # TODO
 https://github.com/themaximalist/llm.js/
+
+https://lobehub.com/zh/icons
