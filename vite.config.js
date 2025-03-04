@@ -5,6 +5,7 @@ import manifest from './manifest.json'
 import removeConsole from 'vite-plugin-remove-console'
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 import path from 'path'
+import { viteStaticCopy } from 'vite-plugin-static-copy' // 新增
 
 const modifyManifest = (isProd) => {
   const manifestCopy = structuredClone(manifest)
@@ -27,12 +28,35 @@ export default defineConfig(({ mode }) => {
       crx({ manifest: modifyManifest(isProd) }),
       removeConsole({ // 注意：根据插件的版本和选项，可能需要调整
         target: 'console'
-      }),
+      }),      viteStaticCopy({
+        targets: [
+          {
+            src: 'src/assets/icons/*',
+            dest: 'src/assets/icons'
+          }
+        ]
+      }),{
+        name: 'virtual-ollama',
+        resolveId(source) {
+          if (source.includes("ollama")) {
+            return '\0virtual-ollama';
+          }
+        },
+        load(id) {
+          if (id.includes("ollama")) {
+            return `
+              export default {};
+              export const Ollama = {};
+              export const Client = class {};
+            `;
+          }
+        }
+      }
     ],
     server: {
       port: 5173,
       strictPort: true, // 如果端口被占用，不要尝试下一个可用端口
-      sourcemap:false,
+      sourcemap: false,
       hmr: {
         port: 5173,
         protocol: 'ws',
@@ -47,14 +71,15 @@ export default defineConfig(({ mode }) => {
         },
         output: {
           chunkFileNames: 'assets/[name]-[hash].js',
-          entryFileNames: 'assets/[name]-[hash].js',
+          entryFileNames: 'assets/[name]-[hash].js'
         },
       },
       minify: false,
       sourcemap: false,
+      assetsInclude: ['**/*.png']
       // esbuild: {
       //   pure: ['console.*', 'debugger'],
       // },
-    },
+    }
   }
 })

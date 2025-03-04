@@ -761,12 +761,6 @@ export default {
           value: 'together',
           label: 'Together',
         },{
-          value: 'ollama',
-          label: 'Ollama',
-        },{
-          value: 'llamafile',
-          label: 'llamafile',
-        },{
           value: 'perplexity',
           label: 'Perplexity',
         }
