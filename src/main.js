@@ -6,7 +6,7 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import 'element-plus/dist/index.css';
 import en from './i18n/en/messages.json'
 import zh from './i18n/zh/messages.json'
-// import zh from './i18n/zh/messages.yml'
+// import 'element-plus/theme-chalk/dark/css-vars.css'
 
 const app = createApp(App);
 

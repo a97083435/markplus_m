@@ -222,7 +222,7 @@
                 <el-icon class="folder-icon">
                   <Folder/>
                 </el-icon>
-                <span class="bookmark-title">{{ data.title }}</span>
+                <el-text class="bookmark-title">{{ data.title }}</el-text>
                 <el-tag
                     :round="true"
                     class="child-count-tag"
@@ -1398,11 +1398,9 @@ export default {
 
 .folder-icon {
   margin-right: 4px;
-  color: #757575;
 }
 
 .bookmark-title {
-  color: #333;
   margin-right: 6px;
 }
 
