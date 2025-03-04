@@ -66,7 +66,7 @@
     "maxSummarizeTags_title": "The maximum number of web page tabs that can be summarized at once is determined by testing.  Summarizing 3 web pages at a time is relatively stable.  Adjustments should be made after further testing.",
     "crawlStatus": "Scan status",
     "crawlStatus_title": "The status of bookmarks scanned when clicking scan",
-    "llmEnabled": "Gemini summarize web page tags",
+    "llmEnabled": "AI summarize web page tags",
     "provider": "Provider / Model",
     "providerkey": "Api Key",
     "promt": "Prompt for summarizing tags"

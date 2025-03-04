@@ -44,7 +44,7 @@
     "metaDescription": "源描述",
     "dateAddedTime": "添加时间",
     "status_show": {
-      "2": "采集完成",
+      "2": "已采集",
       "-99": "不处理",
       "0": "待采集",
       "1": "已采集",
@@ -66,7 +66,7 @@
     "maxSummarizeTags_title": "一次最多总结多少个网页标签,经测试一次性总结3个网页比较稳定，请测试后再进行修改",
     "crawlStatus": "扫描状态",
     "crawlStatus_title": "点击扫描时，扫描的书签状态",
-    "llmEnabled": "Gemini总结网页标签",
+    "llmEnabled": "AI总结网页标签",
     "provider": "供应商 / 模型名称",
     "providerkey": "密钥",
     "promt": "总结标签提示词"
