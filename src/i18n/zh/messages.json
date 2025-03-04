@@ -84,7 +84,7 @@
     "modifyUserSuccess": "修改用户配置成功!",
     "cub": "目录下包含未删除书签，请清空后进行删除!",
     "success": "操作成功!",
-    "modifyUserFirst": "请先配置用户参数!",
+    "modifyUserFirst": "请先配置AI-API相关参数!",
     "select": "请选择!"
   }
 }
