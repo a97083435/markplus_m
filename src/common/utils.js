@@ -32,6 +32,7 @@ const Util = {
             index: node.index,//显示位置
             treeId: treeId,//目录id结构
             treeName: treeName,//目录结构
+            label:treeName+'/'+node.title,
             domain: node.url ? new URL(node.url).hostname : null,
             tags:[],
             domainTitle: "",

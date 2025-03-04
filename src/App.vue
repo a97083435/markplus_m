@@ -211,9 +211,9 @@
           <el-tree :data="treeData"
                    :expand-on-click-node="false"
                    default-expand-all
+                   node-key="id"
                    :highlight-current="true"
                    :draggable = "false"
-                   node-key="id"
                    @node-drag-end="moveBookMarkDir"
                    @node-contextmenu="handleRightClick"
                    @node-click="queryByDir">
@@ -478,6 +478,25 @@
 
   <el-dialog v-model="showBookmarkStatusDailog" width="500">
     <el-form :model="changeBookmarkStatus" label-width="auto">
+      <el-form-item :label="t('bookmark.folder')">
+        <el-tree-select
+            v-model="changeBookmarkStatus.parentId"
+            :data="treeData"
+            default-expand-all
+            node-key="id"
+            check-strictly
+            :render-after-expand="true"
+        >
+          <template #default="{ node, data }">
+            <div class="bookmark-node">
+              <el-icon class="folder-icon">
+                <Folder/>
+              </el-icon>
+              <el-text class="bookmark-title">{{ data.title }}</el-text>
+            </div>
+          </template>
+        </el-tree-select>
+      </el-form-item>
       <el-form-item :label="t('bookmark.status')">
         <el-select
             v-model="changeBookmarkStatus.status"
@@ -543,18 +562,28 @@
             <el-col :span="4">
               <el-switch v-model="userSetting.llmEnabled"/>
             </el-col>
-            <el-col :span="7">
+            <el-col :span="5">
               <el-select v-model="userSetting.provider" v-show="userSetting.llmEnabled">
                 <el-option
                     v-for="item in providers"
                     :label="item.label"
                     :value="item.value"
-                />
+                >
+                  <div class="flex items-center">
+                    <el-image style="margin-right: 8px;width: 16px;height: 16px;background-color: #000" :src="'src/assets/icons/'+item.value+'.png'" />
+                    <el-text style="margin-top: 6px">{{ item.label }}</el-text>
+                  </div>
+                </el-option>
+                <template #label="{ label, value }">
+                  <div style="display: flex;align-items: center;">
+                    <span> <img style="margin-top: 6px;width: 16px;height: 16px;background-color: #000" :src="'src/assets/icons/'+value+'.png'" /> </span>
+                  </div>
+                </template>
               </el-select>
             </el-col>
             <el-col :span="1">
             </el-col>
-            <el-col :span="7">
+            <el-col :span="9">
               <el-input  v-model="userSetting.providerModel" v-show="userSetting.llmEnabled"/>
             </el-col>
             <el-col :span="1">
@@ -563,19 +592,30 @@
               <el-button type="primary" v-show="userSetting.llmEnabled"  @click="this.showLLMTestDrawer = true">{{t('btn.test')}}</el-button>
               <el-drawer v-model="this.showLLMTestDrawer" size="28%">
                 <el-form-item :label="t('userConfig.provider')">
-                  <el-col :span="6">
-                    <el-select v-model="userSetting.provider">
+                  <el-col :span="8">
+                    <el-select v-model="userSetting.provider" >
                       <el-option
                           v-for="item in providers"
                           :label="item.label"
                           :value="item.value"
-                      />
+                      >
+                      <div class="flex items-center">
+                        <el-image style="margin-right: 8px;width: 16px;height: 16px;background-color: #000" :src="'src/assets/icons/'+item.value+'.png'" />
+                        <el-text style="margin-top: 6px">{{ item.label }}</el-text>
+                      </div>
+                      </el-option>
+                      <template #label="{ label, value }">
+                        <div style="display: flex;align-items: center;">
+                          <span> <img style="margin-top: 6px;width: 16px;height: 16px;background-color: #000" :src="'src/assets/icons/'+value+'.png'" /> </span>
+                          <span style="font-weight: bold;padding-left: 10px">{{ label }}</span>
+                        </div>
+                      </template>
                     </el-select>
                   </el-col>
                   <el-col :span="2" style="text-align: center">
                     /
                   </el-col>
-                  <el-col :span="16">
+                  <el-col :span="14">
                     <el-input v-model="userSetting.providerModel"/>
                   </el-col>
                 </el-form-item>
