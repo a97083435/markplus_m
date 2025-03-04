@@ -569,9 +569,9 @@
                     :label="item.label"
                     :value="item.value"
                 >
-                  <div class="flex items-center">
+                  <div style="display: flex;align-items: center;">
                     <el-image style="margin-right: 8px;width: 16px;height: 16px;background-color: #000" :src="'src/assets/icons/'+item.value+'.png'" />
-                    <el-text style="margin-top: 6px">{{ item.label }}</el-text>
+                    <span style="padding-left: 10px">{{ item.label }}</span>
                   </div>
                 </el-option>
                 <template #label="{ label, value }">
@@ -599,9 +599,9 @@
                           :label="item.label"
                           :value="item.value"
                       >
-                      <div class="flex items-center">
-                        <el-image style="margin-right: 8px;width: 16px;height: 16px;background-color: #000" :src="'src/assets/icons/'+item.value+'.png'" />
-                        <el-text style="margin-top: 6px">{{ item.label }}</el-text>
+                      <div style="display: flex;align-items: center;">
+                        <el-image style="margin-right: 6px;width: 16px;height: 16px;background-color: #000" :src="'src/assets/icons/'+item.value+'.png'" />
+                        <span style="padding-left: 10px">{{ item.label }}</span>
                       </div>
                       </el-option>
                       <template #label="{ label, value }">
@@ -784,7 +784,6 @@ export default {
         {key: _this.t('bookmark.status_show.-2'), value: -2},
         {key: _this.t('bookmark.status_show.-1'), value: -1},
         {key: _this.t('bookmark.status_show.0'), value: 0},
-        {key: _this.t('bookmark.status_show.1'), value: 1},
         {key: _this.t('bookmark.status_show.9'), value: 9},
         {key: _this.t('bookmark.status_show.404'), value: 404},
       ],
@@ -884,6 +883,9 @@ export default {
         // 使用 `_this` 代替 `this`
         if (result.action === Constant.PAGE_EVENT.QUERY_FOLDER) {
           _this.treeData = result.datas;
+        } else if (result.action === Constant.PAGE_EVENT.STOP_CRAWL_META_ACK) {
+          _this.setting.crawlStatus = "0";
+          _this.reloadBookmarkPage();
         } else if (result.action === Constant.PAGE_EVENT.QUERY_BOOKMARKS) {
           _this.bookmarks = result.datas;
           if (_this.setting.editModel) {
@@ -1234,7 +1236,14 @@ export default {
       let datas = _this.$refs.bookmarkList.getCheckedNodes();
       if (datas && datas.length > 0) {
         for (const bm of datas) {
-          bm.status = _this.changeBookmarkStatus.status;
+          if(_this.changeBookmarkStatus.status){
+            bm.status = _this.changeBookmarkStatus.status;
+          }
+          if(_this.changeBookmarkStatus.parentId){
+            bm.syncChrome = false;
+            bm.move = true;
+            bm.parentId = _this.changeBookmarkStatus.parentId;
+          }
         }
         BookmarkManager.saveBookmarks(datas).then(() => {
           _this.showBookmarkStatusDailog = false;

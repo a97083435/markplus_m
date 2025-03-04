@@ -15,6 +15,7 @@ const Constant={
         STATISTICS_TOTAL:"statisticsTotal",
         CRAWL_META:"crawlMeta",
         STOP_CRAWL_META:"stopCrawlMeta",
+        STOP_CRAWL_META_ACK:"stopCrawlMetaAck",
         RELOAD_BOOKMARK:"reloadBookmark",
         ALERT_MSG:"alertMsg"
     }

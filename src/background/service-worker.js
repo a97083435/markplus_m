@@ -199,14 +199,16 @@ chrome.webNavigation.onCompleted.addListener((details) => {
  * 长连接监听页面指令
  */
 chrome.runtime.onConnect.addListener(function (port) {
-    port.onMessage.addListener(function (params) {
+    let _this = this;
+    _this.port = port;
+    _this.port.onMessage.addListener(function (params) {
         if (params.action === Constant.PAGE_EVENT.QUERY_FOLDER) {
             BookmarkManager.queryBookmarks(params).then(datas => {
-                port.postMessage({action: Constant.PAGE_EVENT.QUERY_FOLDER, datas: Util.getRootTree(datas)});
+                _this.port.postMessage({action: Constant.PAGE_EVENT.QUERY_FOLDER, datas: Util.getRootTree(datas)});
             })
         } else if (params.action === Constant.PAGE_EVENT.STOP_CRAWL_META) {
             chrome.storage.local.set({[Constant.ENV.SYS_CRAWL_STATUS]: "0"});
-        }  else if (params.action === Constant.PAGE_EVENT.RELOAD_BOOKMARK) {
+        } else if (params.action === Constant.PAGE_EVENT.RELOAD_BOOKMARK) {
             BookmarkManager.clearAll().then(value => {
                 chrome.bookmarks.getTree(async function (bookmarkTreeNodes) {
                     const bookmarks = Util.flattenBookmarkTree(bookmarkTreeNodes);
@@ -214,7 +216,7 @@ chrome.runtime.onConnect.addListener(function (port) {
                     if (dbCount != bookmarks.length) {
                         BookmarkManager.saveBookmarks(bookmarks)
                             .then(result => {
-                                port.postMessage({action: Constant.PAGE_EVENT.RELOAD_PAGE})
+                                _this.port.postMessage({action: Constant.PAGE_EVENT.RELOAD_PAGE})
                             })
                             .catch(error => {
                                 console.error("初始化或验证书签时出错:", error);
@@ -254,11 +256,13 @@ chrome.runtime.onConnect.addListener(function (port) {
                         });
                     }
                 }
-                chrome.storage.local.set({[Constant.ENV.SYS_CRAWL_STATUS]: "0"});
+                chrome.storage.local.set({[Constant.ENV.SYS_CRAWL_STATUS]: "0"}).then(value => {
+                    _this.port.postMessage({action: Constant.PAGE_EVENT.STOP_CRAWL_META_ACK});
+                });
             })
         } else {
             BookmarkManager.queryBookmarks(params).then(datas => {
-                port.postMessage({action: params.action, datas: datas});
+                _this.port.postMessage({action: params.action, datas: datas});
             })
         }
     });
