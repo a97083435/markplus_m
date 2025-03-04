@@ -159,11 +159,11 @@ const BookmarkManager = {
             resultMap.set(item.url,tempArr);
         }
         const datas = Array.from(resultMap.values()).flatMap(list => list);
-        for (let data of datas) {
-            if(data.status > 0 && data.type == 'bookmark'){
-                console.log(data.id+"+"+data.title);
-            }
-        }
+        // for (let data of datas) {
+        //     if(data.status > 0 && data.type == 'bookmark'){
+        //         console.log(data.id+"+"+data.title);
+        //     }
+        // }
         this.saveBookmarks(datas);
     },
     saveBookmarks: async function (bookmarks) {
