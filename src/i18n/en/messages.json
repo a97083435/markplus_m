@@ -12,6 +12,7 @@
   },
   "btn": {
     "save": "Save",
+    "syncUrl": "Sync current URL",
     "test": "Test",
     "close": "Close",
     "del": "Delete",

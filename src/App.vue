@@ -511,6 +511,7 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="saveBookmarkStatus">{{ t('btn.save') }}</el-button>
+        <el-button type="warning" v-if="lastQueryParam.prop=='status' && lastQueryParam.value==-2" @click="syncUrl">{{ t('btn.syncUrl') }}</el-button>
         <el-button @click="showBookmarkStatusDailog=false">{{ t('btn.close') }}</el-button>
       </el-form-item>
     </el-form>
@@ -1218,6 +1219,33 @@ export default {
       let datas = _this.$refs.bookmarkList.getCheckedNodes();
       if (datas && datas.length > 0) {
         _this.showBookmarkStatusDailog = true;
+      } else {
+        ElMessage({
+          message: _this.t('tips.select'),
+          type: 'error',
+        });
+      }
+    },
+    syncUrl(){
+      const _this = this;
+      let datas = _this.$refs.bookmarkList.getCheckedNodes();
+      if (datas && datas.length > 0) {
+        for (const bm of datas) {
+          if(bm.status == -2){
+            bm.syncChrome = false;
+            bm.url = bm.currentUrl;
+            bm.domain = bm.currentDomain;
+            bm.status = 0;
+          }
+        }
+        BookmarkManager.saveBookmarks(datas).then(() => {
+          _this.showBookmarkStatusDailog = false;
+          ElMessage({
+            message: _this.t('tips.success'),
+            type: 'success',
+          });
+          _this.reloadBookmarkPage();
+        })
       } else {
         ElMessage({
           message: _this.t('tips.select'),

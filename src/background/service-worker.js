@@ -305,7 +305,11 @@ async function updateBookMark(datas, tabId) {
                 let data = results[0].result;
                 if(datas.length > 1){
                     status = -3;
-                }else if(data?.metaTitle.includes('404')){
+                }else if(data?.metaTitle.includes('404') ||
+                    data?.metaTitle.includes('链接不存在') ||
+                    data?.metaTitle.includes('表单不存在') ||
+                    data?.metaTitle.includes('小站不存在') ||
+                    data?.metaTitle.includes('页面不存在')){
                     status = 404;
                 }
                 // console.log("获取的元数据:", results);
