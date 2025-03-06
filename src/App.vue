@@ -398,8 +398,8 @@
     </el-container>
   </el-container>
 
-  <el-dialog v-model="showBookmarkDailog" :title="t('bookmarkDailog.dailogTitle')" width="500">
-    <el-form :model="bookmark" label-width="auto">
+  <el-dialog v-model="showBookmarkDailog" :title="t('bookmarkDailog.dailogTitle')" width="800">
+    <el-form :model="bookmark" label-width="auto" >
       <el-form-item :label="t('bookmark.title')">
         <el-input v-model="bookmark.title"/>
       </el-form-item>
