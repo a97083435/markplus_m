@@ -1,3 +1,5 @@
+扩展书签的功能，增加额外字段用于查询和整理。
+
 智能书签管理器，AI驱动标签生成，多维度搜索，让Chrome书签管理更轻松。
 
 A Chrome extension for intelligent bookmark management with AI-powered tagging and smart search.
@@ -16,7 +18,9 @@ Tired of not being able to find your saved bookmarks? Worried about dead links? 
 - 智能识别重复书签 | Smart duplicate bookmark detection
 
 🤖 AI智能驱动 | AI-Powered Intelligence
-- 集成Google AI Studio自动生成标签 | Automatic tag generation using Google AI Studio
+- 集成llm.js，适配多个ai供应商，自动生成标签 | Integrate llm.js, adapt to multiple AI providers, and automatically generate tags.
+
+
 
 🔍 高级搜索 | Advanced Search
 - 多维度搜索功能 | Multi-dimensional search capabilities
@@ -32,4 +36,3 @@ Tired of not being able to find your saved bookmarks? Worried about dead links? 
 您的反馈对我们非常重要！如果您觉得MarkPlus-M对您有帮助，欢迎在Chrome商店给我们评分和反馈，这将帮助我们做得更好。
 
 Your feedback matters! If you find MarkPlus-M helpful, please consider rating and reviewing us on the Chrome Web Store. Your support helps us improve and grow.
-
