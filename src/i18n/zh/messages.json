@@ -12,6 +12,7 @@
   },
   "btn": {
     "save": "保存",
+    "locate":"定位",
     "syncUrl": "同步当前网址",
     "test": "测试",
     "close": "关闭",

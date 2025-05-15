@@ -250,14 +250,14 @@
             <el-scrollbar style="border-radius: 4px;box-shadow: 0 2px 12px 0 #909399">
               <el-tree-v2 :data="bookmarks"
                           id="bookmarkList"
-                          :highlight-current="false"
+                          :highlight-current="true"
                           ref="bookmarkList"
                           :show-checkbox="setting.editModel"
                           :item-size="30"
                           :height="height-10"
                           node-key="id">
                 <template #default="{ node, data }">
-                  <el-row style="width: 99%" @mouseover="handleMouseOver(data)" >
+                  <el-row style="width: 99%;align-items: center;" @mouseover="handleMouseOver(data)" >
                     <el-col :span="21" >
                       <template v-if="data.type === 'folder'">
                         <el-icon style="margin-right: 20px;">
@@ -363,6 +363,12 @@
                     </el-col>
                     <el-col :span="2" style="display: flex; justify-content: flex-end;padding-right: 13px">
                       <template v-if="setting.editModel && hoveredNode === data.id">
+                        <el-button circle class="iconBtn" :title="t('btn.locate')" type="warning" @click="editBookmark(data)">
+                          <el-icon>
+                            <Location />
+                          </el-icon>
+                        </el-button>
+
                         <el-popconfirm :title="t('confirm.delete')" width="300px"
                                        @confirm="removeBookmark(data)">
                           <template #reference>
