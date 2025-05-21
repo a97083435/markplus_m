@@ -207,8 +207,9 @@
       <el-aside
           :style="{ width: '300px',borderRight:'3px solid var(--el-border-color)' }"
       >
-        <el-scrollbar>
-          <el-tree :data="treeData"
+        <el-scrollbar ref="dirRefContainer">
+          <el-tree ref="dirRef"
+                   :data="treeData"
                    :expand-on-click-node="false"
                    default-expand-all
                    node-key="id"
@@ -363,7 +364,7 @@
                     </el-col>
                     <el-col :span="2" style="display: flex; justify-content: flex-end;padding-right: 13px">
                       <template v-if="setting.editModel && hoveredNode === data.id">
-                        <el-button circle class="iconBtn" :title="t('btn.locate')" type="warning" @click="editBookmark(data)">
+                        <el-button circle class="iconBtn" :title="t('btn.locate')" type="warning" @click="locationDir(data)">
                           <el-icon>
                             <Location />
                           </el-icon>
@@ -857,6 +858,22 @@ export default {
       let url =  data.urlShow || data.url;
       let str = title || url;
       return str;
+    },
+    locationDir(data){
+      this.$refs.dirRef.setCurrentKey(data.parentId);
+      // this.$refs.dirRef.scrollToNode(data.parentId);
+      // 3. 滚动到目标节点
+      this.$nextTick(() => {
+        const nodeEl = this.$refs.dirRefContainer.querySelector(
+            `.el-tree-node[data-key="${data.parentId}"]`
+        );
+        if (nodeEl) {
+          nodeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          console.warn(`未找到 ID 为 ${data.parentId} 的节点`);
+        }
+      });
+      return;
     },
     promptDebugRun(){
       let _this = this;
@@ -1362,6 +1379,15 @@ export default {
 };
 </script>
 <style>
+.el-tree-node.is-current > .el-tree-node__content {
+  color: #dc3545 !important;
+  font-weight: bold; /* 加粗文字 */
+}
+.el-tree-node.is-current > .el-tree-node__content > .bookmark-node > .bookmark-title {
+  color: #dc3545 !important;
+}
+
+
 .el-popper.is-dark {
   max-width: 80%;
 }
