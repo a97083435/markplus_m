@@ -861,16 +861,14 @@ export default {
     },
     locationDir(data){
       this.$refs.dirRef.setCurrentKey(data.parentId);
-      // this.$refs.dirRef.scrollToNode(data.parentId);
-      // 3. 滚动到目标节点
       this.$nextTick(() => {
-        const nodeEl = this.$refs.dirRefContainer.querySelector(
-            `.el-tree-node[data-key="${data.parentId}"]`
+        const nodeEl = document.querySelector(
+          `.el-tree-node[data-key="${data.parentId}"]`
         );
         if (nodeEl) {
           nodeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
         } else {
-          console.warn(`未找到 ID 为 ${data.parentId} 的节点`);
+          console.warn(`未找到ID为 ${data.parentId} 的节点`);
         }
       });
       return;
