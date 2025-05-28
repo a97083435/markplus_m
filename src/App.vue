@@ -866,7 +866,8 @@ export default {
           `.el-tree-node[data-key="${data.parentId}"]`
         );
         if (nodeEl) {
-          nodeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // nodeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          nodeEl.scrollIntoView();
         } else {
           console.warn(`未找到ID为 ${data.parentId} 的节点`);
         }
