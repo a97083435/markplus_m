@@ -254,12 +254,12 @@
                           :highlight-current="true"
                           ref="bookmarkList"
                           :show-checkbox="setting.editModel"
-                          :item-size="30"
+                          :item-size="60"
                           :height="height-10"
                           node-key="id">
                 <template #default="{ node, data }">
                   <el-row style="width: 99%;align-items: center;" @mouseover="handleMouseOver(data)" >
-                    <el-col :span="21" >
+                    <el-col :span="23" >
                       <template v-if="data.type === 'folder'">
                         <el-icon style="margin-right: 20px;">
                           <Folder/>
@@ -317,6 +317,32 @@
                           <el-text class="bookmark-text" truncated @dblclick="openUrl(data)" v-html="showTitle(data)"/>
                         </el-tooltip>
                       </template>
+                      <br/>
+                      <el-tag  style="margin-right: 10px" v-if="showDir" type="warning" size="small">{{data.treeName}}</el-tag>
+
+                      <template v-if="setting.editModel && hoveredNode === data.id">
+                        <el-button circle class="iconBtn" :title="t('btn.locate')" type="warning" @click="locationDir(data)">
+                          <el-icon>
+                            <Location />
+                          </el-icon>
+                        </el-button>
+
+                        <el-popconfirm :title="t('confirm.delete')" width="300px"
+                                       @confirm="removeBookmark(data)">
+                          <template #reference>
+                            <el-button circle class="iconBtn" :title="t('btn.del')" type="danger">
+                              <el-icon>
+                                <Delete/>
+                              </el-icon>
+                            </el-button>
+                          </template>
+                        </el-popconfirm>
+                        <el-button circle class="iconBtn" :title="t('btn.edit')" type="primary" @click="editBookmark(data)">
+                          <el-icon>
+                            <Edit/>
+                          </el-icon>
+                        </el-button>
+                      </template>
                     </el-col>
                     <el-col :span="1" style="display: flex; justify-content: flex-end;padding-right: 13px">
                       <template v-if="data.type === 'bookmark'">
@@ -362,31 +388,7 @@
                         </template>
                       </template>
                     </el-col>
-                    <el-col :span="2" style="display: flex; justify-content: flex-end;padding-right: 13px">
-                      <template v-if="setting.editModel && hoveredNode === data.id">
-                        <el-button circle class="iconBtn" :title="t('btn.locate')" type="warning" @click="locationDir(data)">
-                          <el-icon>
-                            <Location />
-                          </el-icon>
-                        </el-button>
 
-                        <el-popconfirm :title="t('confirm.delete')" width="300px"
-                                       @confirm="removeBookmark(data)">
-                          <template #reference>
-                            <el-button circle class="iconBtn" :title="t('btn.del')" type="danger">
-                              <el-icon>
-                                <Delete/>
-                              </el-icon>
-                            </el-button>
-                          </template>
-                        </el-popconfirm>
-                        <el-button circle class="iconBtn" :title="t('btn.edit')" type="primary" @click="editBookmark(data)">
-                          <el-icon>
-                            <Edit/>
-                          </el-icon>
-                        </el-button>
-                      </template>
-                    </el-col>
                   </el-row>
                 </template>
 
@@ -830,6 +832,7 @@ export default {
           label: _this.t('searchQuery.url')
         }],
       },
+      showDir:false,
       showBookmarkDailog: false,
       showBookmarkStatusDailog: false,
       showLLMTestDrawer: false,
@@ -1171,6 +1174,7 @@ export default {
     },
     searchBookmarks() {
       let _this = this;
+      _this.showDir = !_this.searchQuery.value==''
       _this.statistics.selectStatus = [];
       _this.lastQueryParam = {
         prop: _this.searchQuery.prop,
@@ -1397,6 +1401,16 @@ export default {
 }
 </style>
 <style scoped>
+.el-tree-node__content {
+  background-color: red !important;
+}
+
+/* 在全局样式文件中 */
+.el-tag {
+  --el-tag-font-size: 12px;
+  --el-tag-padding: 4px 8px;
+  height: auto;
+}
 .context-menu {
   position: fixed;
   background: #fff;
